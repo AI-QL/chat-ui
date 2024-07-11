@@ -70,11 +70,12 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            margin-bottom: 200px;
+            margin-bottom: 122px;
         }
 
         #lottie {
-            height: calc(94vh - 40px);
+            height: calc(100vh - 50px);
+            max-height: calc(100% - 50px);
         }
 
         .input-area {
@@ -338,10 +339,10 @@
                     </v-btn>
                     <v-btn class="mx-2 mb-6" variant="elevated" icon="mdi-cog-outline" @click="settingStore.initDialog">
                     </v-btn>
-                    <v-textarea class="mx-1 mt-5" color="primary" type="text" variant="solo" ref="input" counter
+                    <v-textarea class="input-box mx-1 mt-5" color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" label="Q:"
-                        :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3"
-                        @blur="settingStore.inputRow = 1">
+                        :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3" auto-grow max-rows="15"
+                        @blur="settingStore.inputRow = 1" @input="inputTriggered()">
 
                     </v-textarea>
                     <v-btn class="mx-2 mb-6 shadow" color="primary" variant="elevated" @click="messageStore.sendMessage"
@@ -1087,13 +1088,18 @@
                     return read(reader, target);
                 };
 
-                messageStore.$subscribe((args, state) => {
-                    const asyncScroll = async () => {
-                        await nextTick();
-                        scrollToBottom(document.querySelector(".chat-bot"));
+                watch(computed(() => messageStore.conversation),
+                    (newValue, oldValue) => {
+                        asyncScrollToBottom()
+                    }, { deep: true });
+
+                const inputTriggered = () => {
+                    const chatElement = document.querySelector(".chat-bot");
+                    const inputElement = document.querySelector(".input-box");
+                    if (chatElement) {
+                        chatElement.style.marginBottom = `${inputElement.offsetHeight}px`
                     }
-                    asyncScroll()
-                })
+                }
 
                 const scrollToBottom = (
                     element,
@@ -1104,6 +1110,11 @@
                         top: element?.scrollHeight
                     });
                 };
+
+                const asyncScrollToBottom = async () => {
+                    await nextTick();
+                    scrollToBottom(document.querySelector(".chat-bot"));
+                }
 
                 const initLottie = () => {
                     lottie.loadAnimation({
@@ -1127,7 +1138,6 @@
 
                         const reader = new FileReader();
                         reader.onload = (event) => {
-                            // console.log(chatbotStore.getAllPathx)
                             try {
                                 const json = JSON.parse(event.target.result)
                                 chatbotStore.updateStoreFromJSON(json.chatbotStore)
@@ -1144,6 +1154,8 @@
 
                 return {
                     configFile,
+
+                    inputTriggered,
 
                     settingStore,
                     agentStore,
