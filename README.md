@@ -8,7 +8,7 @@ By simplifying the structure and key functions, developers can quickly set up an
 
 ### Option 1: Goto [AIQL](https://www.aiql.com/)
 
-### Option 2: Download <a href="index.html" target="_blank">Index</a> and open it locally
+### Option 2: Download <a href="https://raw.githubusercontent.com/aiql-admin/chat-ui-lite/main/index.html" target="_blank">Index</a> and open it locally
 
 ### Option 3: Deploy your own Chatbot by [Docker](https://hub.docker.com/repository/docker/aiql/chat-ui-lite/tags?page=1&ordering=last_updated)
 
