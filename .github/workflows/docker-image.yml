@@ -10,7 +10,6 @@ on:
     # Publish semver tags as releases.
     tags: [ 'v*' ]
   pull_request:
-    branches-ignore: 'main'
   workflow_dispatch:
 
 jobs:
