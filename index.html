@@ -249,7 +249,7 @@
                     <div class="pa-4">
                         <v-text-field class="py-2 px-1" color="primary" v-model="agentStore.card.title" label="Title"
                             variant="plain" hideDetails placeholder="Title" autofocus
-                            @keyup.enter="agentStore.saveCard(agentStore.card)"></v-text-field>
+                            @keyup.enter="agentStore.saveCard()"></v-text-field>
                         <v-divider></v-divider>
                         <v-textarea v-model="agentStore.card.description" class="px-2 py-1" variant="plain"
                             placeholder="Description" hide-details></v-textarea>
@@ -258,7 +258,7 @@
                     <v-card-actions class="pa-4">
                         <v-btn variant="outlined" @click="settingStore.editDialog = false">Cancel</v-btn>
                         <v-spacer></v-spacer>
-                        <v-btn variant="flat" color="primary" @click="agentStore.saveCard(agentStore.card)">Save</v-btn>
+                        <v-btn variant="flat" color="primary" @click="agentStore.saveCard()">Save</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -610,14 +610,19 @@
                             agentStore.card = { ...card }
                             settingStore.editDialog = true;
                         },
-                        saveCard(editCard) {
-                            let targetCard = cards.value.find((card) => card.id === editCard.id);
-                            console.log("Target", targetCard, editCard.id);
-                            if (targetCard) {
-                                targetCard.title = editCard.title;
-                                targetCard.description = editCard.description;
-                                settingStore.editDialog = false;
+                        saveCard() {
+                            const editCard = this.card
+                            if (editCard) {
+                                let foundCard = this.columns
+                                    .flatMap(column => column.cards)
+                                    .find(card => card.id === this.card.id);
+                                if (foundCard) {
+                                    foundCard.title = editCard.title;
+                                    foundCard.description = editCard.description;
+                                    settingStore.editDialog = false;
+                                }
                             }
+
                         },
                         initAgent() {
                             const states = ref(["PROMPT", "AGENT1", "AGENT2"]);
@@ -889,7 +894,7 @@
                         url: ["https://api.openai.com",
                             "http://127.0.0.1",
                             "https://api.deepinfra.com",
-                            "https://console.anthropic.com"],
+                            "https://api.aiql.com"],
                         path: ["/v1/chat/completions",
                             "/v1/openai/chat/completions",
                             "/openai/v1/chat/completions"],
