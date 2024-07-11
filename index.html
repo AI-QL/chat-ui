@@ -1,9 +1,1170 @@
+<!--
+
+  @Component: Chatbot UI
+
+  @License: This project uses the following tools, each subject to its respective license restrictions.
+  Please refer to the license of each tool for detailed information:
+
+  - Vue3: https://github.com/vuejs
+  - Vuetify: https://github.com/vuetifyjs/vuetify
+  - Pinia: https://github.com/vuejs/pinia
+  - md-editor-v3: https://github.com/imzbf/md-editor-v3
+  - lottie-web: https://github.com/airbnb/lottie-web
+  - vuedraggable: https://github.com/SortableJS/vue.draggable.next
+
+   Copyright 2024 AIQL.COM
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-->
+
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello world</title>
-  </head>
-  <body>
-    <p>test</p>
-  </body>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+
+    <!-- Keep the order, vue should be the first -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.global.prod.min.js"></script>
+
+    <!-- Vuetify -->
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+
+    <!-- Pinia -->
+    <script src="https://cdn.jsdelivr.net/npm/vue-demi/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pinia/dist/pinia.iife.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"></script>
+
+    <!-- MD -->
+    <script src=" https://cdn.jsdelivr.net/npm/md-editor-v3/lib/umd/index.min.js "></script>
+    <link href=" https://cdn.jsdelivr.net/npm/md-editor-v3/lib/style.min.css " rel="stylesheet">
+
+    <!-- Icon -->
+    <link href=" https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css " rel="stylesheet">
+
+    <!-- Lottie -->
+    <script src=" https://cdn.jsdelivr.net/npm/lottie-web/build/player/lottie.min.js "></script>
+
+    <!-- Vue Draggable -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"></script>
+
+
+    <style scoped lang="scss">
+        .chat-bot {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin-bottom: 200px;
+        }
+
+        #lottie {
+            height: calc(99vh - 50px);
+        }
+
+        .input-area {
+            padding: 5px;
+            width: 100%;
+            align-items: center;
+
+            position: fixed;
+            left: 50%;
+            transform: translate(-50%);
+            bottom: 0;
+
+            .input-panel {
+                max-width: 1200px;
+                border-radius: 5px;
+                margin: 0 auto;
+            }
+        }
+
+        .shadow {
+            box-shadow: 1px 1px 9px #1867C0;
+        }
+
+        .hidden {
+            overflow: hidden;
+        }
+
+        .user-message {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .assitant-message {
+
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .message {
+            margin: 0 auto;
+            display: flex;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: all 0.5s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+            transform: translateX(35px);
+        }
+
+        .toolbox-button {
+            position: fixed;
+            background-color: #1867C0;
+            bottom: 100px;
+            right: -45px;
+            z-index: 999;
+            padding: 0.5rem 1rem;
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+            box-shadow: 1px 1px 9px #1867C0;
+            transition: all 0.5s;
+            cursor: pointer;
+
+            &:hover {
+                box-shadow: 1px 1px 18px #1867C0;
+                right: 0px;
+                transition: all 0.5s;
+            }
+
+        }
+
+        .md-editor-preview p {
+            word-break: break-word;
+        }
+
+        .toolbox {
+            z-index: 999;
+            position: fixed;
+            bottom: 150px;
+            right: 5px;
+        }
+
+        .rotation {
+            font-size: 1.5rem;
+            animation: rotation 2s linear infinite;
+        }
+
+        .ghost {
+            opacity: 0.5;
+            background: #E3F2FD;
+        }
+
+        .list-group {
+            min-height: calc(100% - 38px);
+            /* background-color: lightblue; */
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-dialog v-model="settingStore.agentDialog">
+                <v-card class="pa-5" style="overflow-x: auto">
+                    <!-- board column -->
+                    <v-row justify="center">
+                        <v-col cols="auto" v-for="column in agentStore.columns" :key="column.key"
+                            class="flex-fill mb-2">
+                            <div class="d-flex align-center ma-1">
+                                <h5 class="font-weight-bold">{{ column.key }}</h5>
+                                <v-spacer></v-spacer>
+                                <!-- add new card button -->
+                                <v-btn variant="text" rounded icon="mdi-plus" size="small" color="primary"
+                                    @click="column.isAddVisible = !column.isAddVisible">
+                                </v-btn>
+                            </div>
+
+                            <!-- add new card form -->
+                            <v-card v-show="column.isAddVisible" class="pa-5">
+                                <v-text-field color="primary" v-model="column.addTitle" label="Title"
+                                    variant="underlined" hideDetails autofocus @keyup.enter="agentStore.addCard(column)"
+                                    @keyup.esc="column.isAddVisible = false"></v-text-field>
+                                <div class="mt-3 d-flex flex-md-row flex-column">
+                                    <v-btn class="flex-fill ma-1" size="small"
+                                        @click="column.isAddVisible = !column.isAddVisible">Cancel</v-btn>
+                                    <v-btn class="flex-fill ma-1" size="small" color="primary"
+                                        @click="agentStore.addCard(column)">Add</v-btn>
+                                </div>
+                            </v-card>
+
+                            <!-- draggable cards -->
+                            <vuedraggable v-model="column.cards" v-bind="agentStore.getDragOption"
+                                :class="{'list-group': !column.isAddVisible}" @change="column.callback" item-key="id">
+                                <template #item="{ element, index }">
+                                    <v-card @click="agentStore.editCard(element)" class="pa-4 mt-4 ">
+                                        <div class="d-flex align-start font-weight-bold text-title">
+                                            <span class="flex-fill">{{ element.title }}</span>
+                                            <v-btn size="small" variant="text" icon="mdi-delete-outline" rounded
+                                                color="primary" class="my-n2 mr-n2"
+                                                @click.stop="agentStore.deleteCard(column, index)"></v-btn>
+                                        </div>
+                                        <div class="text-content">{{ element.description }}</div>
+                                    </v-card>
+                                </template>
+                            </vuedraggable>
+                        </v-col>
+                    </v-row>
+                </v-card>
+            </v-dialog>
+
+            <v-dialog v-model="settingStore.editDialog" width="600">
+                <v-card>
+                    <v-card-title class="pa-4 d-flex align-center">
+                        <span class="flex-fill">Edit Card</span>
+                        <v-btn variant="text" rounded icon="mdi-close" size="small" color="primary"
+                            @click="settingStore.editDialog = false">
+                        </v-btn>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <div class="pa-4">
+                        <v-text-field class="py-2 px-1" color="primary" v-model="agentStore.card.title" label="Title"
+                            variant="plain" hideDetails placeholder="Title" autofocus
+                            @keyup.enter="agentStore.saveCard(agentStore.card)"></v-text-field>
+                        <v-divider></v-divider>
+                        <v-textarea v-model="agentStore.card.description" class="px-2 py-1" variant="plain"
+                            placeholder="Description" hide-details></v-textarea>
+                    </div>
+                    <v-divider></v-divider>
+                    <v-card-actions class="pa-4">
+                        <v-btn variant="outlined" @click="settingStore.editDialog = false">Cancel</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn variant="flat" color="primary" @click="agentStore.saveCard(agentStore.card)">Save</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <div class="toolbox-button" @click="settingStore.toolboxShow = true">
+                <v-icon class="rotation text-white">mdi-tools</v-icon>
+            </div>
+
+            <v-card v-if="settingStore.toolboxShow" elevation="10" class="d-flex flex-column toolbox">
+                <v-btn @click="settingStore.agentDialog = true" variant="text" size="45">
+                    <v-icon size="25" color="primary">mdi-clock-outline</v-icon>
+                    <v-tooltip activator="parent" location="left" text="Agent Dialog"></v-tooltip>
+                </v-btn>
+                <!-- ---------------------------------------------- -->
+                <!-- Reset -->
+                <!-- ---------------------------------------------- -->
+                <v-btn @click="settingStore.resetAll" variant="text" size="45">
+                    <v-icon size="25" color="error">mdi-store-remove</v-icon>
+                    <v-tooltip activator="parent" location="left" text="Reset All Config"></v-tooltip>
+                </v-btn>
+                <!-- ---------------------------------------------- -->
+                <!-- Debug -->
+                <!-- ---------------------------------------------- -->
+                <v-btn
+                    @click="snackbarStore.showInfoMessage(messageStore.conversation[messageStore.conversation.length - 1]?.content)"
+                    variant="text" size="45">
+                    <v-icon size="22">mdi-cloud-print-outline</v-icon>
+                    <v-tooltip activator="parent" location="left" text="Print Latest Response"></v-tooltip>
+                </v-btn>
+                <!-- ---------------------------------------------- -->
+                <!-- Close Btn -->
+                <!-- ---------------------------------------------- -->
+                <v-btn @click="settingStore.toolboxShow = false" variant="text" size="45" color="error">
+                    <v-icon size="25">mdi-close</v-icon>
+                    <v-tooltip activator="parent" location="left" text="Close Toolbox"></v-tooltip>
+                </v-btn>
+            </v-card>
+
+            <v-container class="chat-bot" v-if="messageStore.conversation.length > 0">
+                <div class="message-area" v-for="message in messageStore.conversation">
+                    <div v-if="message.role === 'user'">
+                        <div class="pa-5 user-message">
+                            <div class="message align-center text-pre-wrap">
+                                <v-avatar class="mr-3 mr-lg-6" color="primary" icon="mdi-account-circle">
+                                </v-avatar>
+                                <v-card class="gradient text-pre-wrap">
+                                    <v-card-text>
+                                        {{ message.content }}
+                                    </v-card-text>
+                                </v-card>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="pa-5 assitant-message">
+                            <div class="message">
+                                <v-avatar class="mt-2 mr-3 mr-lg-6" color="teal" icon="mdi-lightning-bolt-circle">
+                                </v-avatar>
+                                <v-card>
+                                    <md-preview editor-id='preview-only' :model-value="message.content" language="en-US"
+                                        autoFoldThreshold=100 />
+                                </v-card>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fill-area"></div>
+            </v-container>
+            <v-container v-else>
+                <div id="lottie"></div>
+            </v-container>
+            <div class="input-area">
+                <v-sheet elevation="0" class="input-panel d-flex align-end pa-1">
+                    <v-btn class="mx-2 mb-6" variant="elevated" icon="mdi-history"
+                        @click="settingStore.configHistory = true">
+                    </v-btn>
+                    <v-btn class="mx-2 mb-6" variant="elevated" icon="mdi-cog-outline" @click="settingStore.initDialog">
+                    </v-btn>
+                    <v-textarea class="mx-1 mt-5" color="primary" type="text" variant="solo" ref="input" counter
+                        @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" label="Q:"
+                        :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3"
+                        @blur="settingStore.inputRow = 1">
+
+                    </v-textarea>
+                    <v-btn class="mx-2 mb-6 shadow" color="primary" variant="elevated" @click="messageStore.sendMessage"
+                        icon="mdi-send">
+
+                    </v-btn>
+                </v-sheet>
+            </div>
+
+            <!-- snackbar -->
+            <v-snackbar v-model="snackbarStore.isShow" timeout="4000" :color="snackbarStore.type" class="elevation-3"
+                location="top">
+                <div class="d-flex align-center">
+                    <v-icon class="mr-2">{{ snackbarStore.getIcon() }}</v-icon>
+                    <span>{{snackbarStore.message}}</span>
+                </div>
+
+                <template v-slot:actions>
+                    <v-btn icon variant="text" @click="snackbarStore.isShow = false">
+                        <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                </template>
+            </v-snackbar>
+
+            <v-dialog v-model="settingStore.configHistory" width="90vw" :max-width=800>
+                <v-card prepend-icon="mdi-history" title="History" flat>
+                    <template v-slot:append>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="error" icon="mdi-delete-off-outline" @click="historyStore.resetState"></v-btn>
+                        </v-card-actions>
+                    </template>
+
+
+                    <v-data-iterator :items="historyStore.conversation" items-per-page="-1" class="ma-4 mt-0">
+
+
+                        <template v-slot:default="{ items }">
+                            <transition-group name="fade">
+                                <v-card v-for="(item, index) in items" variant="plain" :key="item.raw.id" flat>
+                                    <v-divider></v-divider>
+                                    <v-card-item>
+                                        <template v-slot:prepend>
+                                            <v-btn :color="historyStore.getColor(index)" class="mr-3" icon size="small"
+                                                @click="historyStore.select(index)">
+                                                {{item.raw.history.length}}
+                                            </v-btn>
+                                        </template>
+                                        <v-card-title>
+                                            {{ item.raw.history[0]?.content || "NA" }}
+                                        </v-card-title>
+                                        <v-card-subtitle>
+                                            {{ item.raw.history[item.raw.history.length-1]?.content || "NA" }}
+
+                                        </v-card-subtitle>
+                                        <template v-slot:append>
+                                            <v-btn icon="mdi-delete-outline" variant="text"
+                                                @click="historyStore.deleteById(index)"></v-btn>
+                                        </template>
+                                    </v-card-item>
+
+
+                                </v-card>
+                            </transition-group>
+
+                        </template>
+
+
+                    </v-data-iterator>
+
+                </v-card>
+
+
+
+            </v-dialog>
+            <!-- dialog -->
+            <v-dialog v-model="settingStore.configDialog" width="90vw" :max-width=800>
+                <v-card prepend-icon="mdi-cog-outline" title="Configuration">
+                    <v-card-text class="ma-2 pb-0">
+                        <!-- ---------------------------------------------- -->
+                        <!-- APIKEY -->
+                        <!-- ---------------------------------------------- -->
+
+                        <v-text-field density='compact' color="primary" variant="outlined"
+                            :append-inner-icon="settingStore.apiKeyShow ? 'mdi-eye-off' : 'mdi-eye'"
+                            :type="settingStore.apiKeyShow ? 'text' : 'password'" v-model="chatbotStore.apiKey"
+                            class="px-2 mb-4" label="API Key" prepend-inner-icon="mdi-key" clearable hide-details
+                            @click:append-inner="settingStore.apiKeyShow = !settingStore.apiKeyShow"></v-text-field>
+
+                        <!-- ---------------------------------------------- -->
+                        <!-- prompts -->
+                        <!-- ---------------------------------------------- -->
+                        <v-textarea density='compact' class="px-2" v-model="messageStore.prompt" :items="promptList"
+                            rows="1" item-title="act" variant="outlined" item-value="prompt"
+                            label="Prompt"></v-textarea>
+
+                        <v-expansion-panels static tile variant="accordion" class="px-2 mb-4">
+                            <v-expansion-panel>
+                                <v-expansion-panel-title v-slot="{ expanded }">
+                                    <v-icon icon="mdi-web" start></v-icon>
+                                    <v-row no-gutters class="hidden">
+                                        <span v-if="expanded">Endpoint</span>
+                                        <span v-else>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{chatbotStore.url}}{{chatbotStore.path}}
+                                            </v-chip>
+
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{chatbotStore.model}}
+                                            </v-chip>
+                                        </span>
+
+
+                                </v-expansion-panel-title>
+
+                                <v-expansion-panel-text>
+                                    <!-- ---------------------------------------------- -->
+                                    <!-- URL -->
+                                    <!-- ---------------------------------------------- -->
+                                    <v-combobox density='compact' class="px-2" label="URL"
+                                        :items="defaultChoiceStore.url" v-model="chatbotStore.url" variant="outlined">
+                                    </v-combobox>
+
+                                    <!-- ---------------------------------------------- -->
+                                    <!-- Path -->
+                                    <!-- ---------------------------------------------- -->
+                                    <v-combobox density='compact' class="px-2" label="Path"
+                                        :items="defaultChoiceStore.path" v-model="chatbotStore.path" variant="outlined">
+                                    </v-combobox>
+
+                                    <!-- ---------------------------------------------- -->
+                                    <!-- Model -->
+                                    <!-- ---------------------------------------------- -->
+                                    <v-combobox density='compact' class="px-2" label="Model"
+                                        :items="defaultChoiceStore.model" v-model="chatbotStore.model"
+                                        variant="outlined">
+                                    </v-combobox>
+                                </v-expansion-panel-text>
+
+                            </v-expansion-panel>
+                            <v-expansion-panel>
+                                <v-expansion-panel-title v-slot="{ expanded }">
+                                    <v-icon icon="mdi-account-key" start></v-icon>
+                                    <v-row no-gutters class="hidden">
+                                        <span v-if="expanded">Advanced</span>
+                                        <span v-else>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{ chatbotStore.method }}
+                                            </v-chip>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{ chatbotStore.stream ? "Stream" : "Stream: off" }}
+                                            </v-chip>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{chatbotStore.max_tokens_type}}
+                                                {{": "}}
+                                                {{ chatbotStore.max_tokens_value ? chatbotStore.max_tokens_value :
+                                                "default" }}
+                                            </v-chip>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{ chatbotStore.authPrefix }}
+                                            </v-chip>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{ chatbotStore.contentType }}
+                                            </v-chip>
+                                        </span>
+                                </v-expansion-panel-title>
+                                <v-expansion-panel-text>
+                                    <v-row class="px-2 mr-2">
+                                        <v-col>
+                                            <v-combobox density='compact' label="Method" v-model="chatbotStore.method"
+                                                variant="outlined">
+                                            </v-combobox>
+                                        </v-col>
+                                        <v-checkbox v-model="chatbotStore.stream" label="Stream" color="primary">
+                                        </v-checkbox>
+                                    </v-row>
+                                    <v-row class="px-3 mt-0 mb-0">
+                                        <v-combobox class="px-2" density='compact' label="MaxTokenPrefix"
+                                            v-model="chatbotStore.max_tokens_type" variant="outlined">
+                                        </v-combobox>
+                                        <v-combobox class="px-2" density='compact' label="MaxTokenValue"
+                                            v-model="chatbotStore.max_tokens_value" variant="outlined">
+                                        </v-combobox>
+                                    </v-row>
+                                    <v-combobox class="px-2" density='compact' label="ContentType"
+                                        v-model="chatbotStore.contentType" variant="outlined">
+                                    </v-combobox>
+                                    <v-combobox class="px-2" density='compact' label="AuthPrefix"
+                                        :items="defaultChoiceStore.authPrefix" v-model="chatbotStore.authPrefix"
+                                        variant="outlined">
+                                    </v-combobox>
+                                </v-expansion-panel-text>
+                            </v-expansion-panel>
+                        </v-expansion-panels>
+
+                        <!-- Dialog Btn -->
+                        <v-card-actions>
+                            <v-file-input prepend-icon="" prepend-inner-icon="mdi-upload" class="mr-2"
+                                variant="outlined" v-model="configFile" label="Config File" accept="application/json"
+                                single-line></v-file-input>
+
+                            <v-spacer></v-spacer>
+                            <v-btn class="mr-2" variant="flat" color="grey"
+                                @click="chatbotStore.resetState">Reset</v-btn>
+                            <v-btn variant="flat" color="primary" @click="settingStore.configDialog = false">OK</v-btn>
+                        </v-card-actions>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+        </v-app>
+
+    </div>
+
+
+
+    <script setup lang="ts">
+
+        const { createApp, ref, computed, onMounted, watch, nextTick, axios } = Vue
+        const { createVuetify } = Vuetify
+        const { createPinia, defineStore, storeToRefs } = Pinia
+
+        const app = createApp({
+            components: {
+                vuedraggable
+            },
+            setup() {
+
+                const useAgentStore = defineStore({
+                    id: "agentStore",
+                    state: () => ({
+                        card: null,
+                        columns: [],
+                    }),
+
+                    getters: {
+                        getDragOption: () => {
+                            return {
+                                animation: 200,
+                                group: "task",
+                                disabled: false,
+                                ghostClass: "ghost",
+                            };
+                        },
+
+                    },
+
+                    actions: {
+                        addCard(column) {
+                            const { addTitle, key } = column;
+                            if (!addTitle) return;
+                            let newCard = {
+                                id: "_" + Math.random().toString(36).substring(2, 11),
+                                state: key,
+                                title: addTitle,
+                                description: "",
+                                order: -1,
+                            };
+                            column.cards.unshift(newCard);
+                            column.addTitle = "";
+                            column.isAddVisible = false;
+                        },
+                        deleteCard(column, inde) {
+                            column.cards.splice(index, 1);
+                        },
+                        editCard(card) {
+                            agentStore.card = { ...card }
+                            settingStore.editDialog = true;
+                        },
+                        saveCard(editCard) {
+                            let targetCard = cards.value.find((card) => card.id === editCard.id);
+                            console.log("Target", targetCard, editCard.id);
+                            if (targetCard) {
+                                targetCard.title = editCard.title;
+                                targetCard.description = editCard.description;
+                                settingStore.editDialog = false;
+                            }
+                        },
+                        initAgent() {
+                            const states = ref(["PROMPT", "AGENT1", "AGENT2"]);
+
+                            const changeState = (e, colIndex) => {
+                                console.log(e)
+                                if (e.added || e.moved) {
+                                    const column = this.columns[colIndex];
+                                    const state = column.key;
+                                    for (let i = 0; i < column.cards.length; i++) {
+                                        column.cards[i].order = i;
+                                        column.cards[i].state = state;
+                                    }
+                                }
+                            };
+
+                            states.value.forEach((state, index) => {
+                                this.columns.push({
+                                    key: state,
+                                    cards: [],
+                                    isAddVisible: false,
+                                    callback: (e) => changeState(e, index),
+                                });
+                            });
+
+                            this.parseCards([
+                                {
+                                    id: 1,
+                                    title: "Prompt 1",
+                                    description: "Prompt 1 description",
+                                    state: "PROMPT",
+                                },
+                                {
+                                    id: 2,
+                                    title: "Agent 1",
+                                    description: "Agent 1 description",
+                                    state: "AGENT1",
+                                },
+                                {
+                                    id: 3,
+                                    title: "Agent 2",
+                                    description: "Agent 2 description",
+                                    state: "AGENT2",
+                                },
+
+                            ])
+
+                        },
+
+                        parseCards(cards) {
+                            if (!cards) return this.columns.map((column) => (column.cards = []));
+
+                            this.columns.forEach((column) => {
+                                column.cards = cards
+                                    .filter((card) => card.state === column.key)
+                                    .sort((a, b) => (a.order < b.order ? -1 : 0));
+                            });
+                        },
+
+                    },
+
+                });
+
+                const useSettingStore = defineStore({
+                    id: "settingStore",
+                    state: () => ({
+                        inputRow: 1,
+                        configDialog: false,
+                        configHistory: false,
+
+                        agentDialog: false,
+                        editDialog: false,
+
+                        apiKeyShow: false,
+
+                        toolboxShow: false,
+                    }),
+                    actions: {
+                        initDialog() {
+                            this.apiKeyShow = false; // hide api key
+                            this.configDialog = true;
+                        },
+                        resetAll() {
+                            historyStore.resetState()
+                            chatbotStore.resetState()
+                            defaultChoiceStore.resetState()
+                        }
+
+                    },
+                });
+
+                const useSnackbarStore = defineStore({
+                    id: "snackbarStore",
+                    state: () => ({
+                        isShow: false,
+                        message: "",
+                        type: "",
+                    }),
+
+                    persist: {
+                        enabled: true,
+                        strategies: [{ storage: localStorage, paths: [""] }],
+                    },
+
+                    getters: {},
+                    actions: {
+                        showMessage(message, type = "") {
+                            this.isShow = true;
+                            this.message = message;
+                            this.type = type;
+                        },
+
+                        showErrorMessage(message) {
+                            this.showMessage(message, "error");
+                        },
+                        showSuccessMessage(message) {
+                            this.showMessage(message, "success");
+                        },
+                        showInfoMessage(message) {
+                            if (!message) {
+                                this.showWarningMessage("No Message to print")
+                            } else {
+                                console.log(message);
+                                this.showMessage("Print to console.log", "info");
+                            }
+
+                        },
+                        showWarningMessage(message) {
+                            this.showMessage(message, "warning");
+                        },
+
+                        getIcon() {
+                            const icon = {
+                                info: "mdi-information",
+                                success: "mdi-check-circle",
+                                error: "mdi-alert-circle",
+                                warning: "mdi-alert",
+                            };
+
+                            return icon[this.type];
+                        },
+                    },
+                });
+
+
+                const useMessageStore = defineStore({
+                    id: "messageStore",
+                    state: () => ({
+                        userMessage: "",
+                        conversation: [],
+                        prompt: "",
+                    }),
+                    persist: {
+                        enabled: true,
+                        strategies: [{ storage: sessionStorage, paths: ["prompt"] }],
+                    },
+                    actions: {
+                        handleKeydown(e) {
+                            if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
+                                // 当同时按下 alt或者shift 和 enter 时，插入一个换行符
+                                e.preventDefault();
+                                this.userMessage += "\n";
+                            } else if (e.key === "Enter") {
+                                // 当只按下 enter 时，发送消息
+                                e.preventDefault();
+                                this.sendMessage();
+                            }
+                        },
+                        sendMessage: async function () {
+                            if (this.userMessage) {
+                                // Add the message to the list
+                                this.conversation.push({
+                                    content: this.userMessage,
+                                    role: "user",
+                                });
+
+                                // Clear the input
+                                this.userMessage = "";
+
+                                // Create a completion
+                                if (this.conversation.length == 1) {
+                                    historyStore.init()
+                                }
+                                historyStore.sync(this.conversation)
+
+                                await createCompletion(this.conversation);
+                                historyStore.sync(this.conversation)
+                            }
+                        },
+                        promptMessage(conversation) {
+                            if (this.prompt) {
+                                return [
+                                    {
+                                        content: this.prompt,
+                                        role: "system",
+                                    }
+                                    , ...conversation]
+                            } else {
+                                return [...conversation]
+                            }
+
+                        },
+                    }
+                });
+
+                const useHistoryStore = defineStore({
+                    id: "historyStore",
+                    state: () => ({
+                        conversation: [],
+                    }),
+                    persist: {
+                        enabled: true,
+                        strategies: [{ storage: localStorage }],
+                    },
+                    getters: {
+                        getDate: () => {
+                            const date = new Date().toLocaleString('zh', { timeZoneName: 'short', hour12: false })
+                            return date
+                        },
+
+                    },
+                    actions: {
+                        resetState() {
+                            this.$reset();
+                        },
+                        deleteById(index) {
+                            this.conversation.splice(index, 1);
+                        },
+                        init() {
+                            this.conversation.unshift({
+                                id: this.getDate,
+                                history: []
+                            });
+                        },
+                        sync(conversation) {
+                            this.conversation[0].history = conversation
+                        },
+                        replace(id) {
+                            this.deleteById(id)
+                            this.init()
+                            this.sync(messageStore.conversation)
+                        },
+                        asyncReplace: async (id) => {
+                            await nextTick();
+                            historyStore.replace(id)
+                        },
+                        select(id) {
+                            settingStore.configHistory = false
+                            messageStore.conversation = this.conversation[id].history
+                            this.asyncReplace(id)
+                        },
+                        getColor(id) {
+                            const targetElement = this.conversation[id]?.history.find(element => element.role === "assistant");
+                            if (targetElement) {
+                                return "primary"
+                            } else {
+                                return "grey"
+                            }
+
+                        }
+
+                    }
+                });
+
+
+                const useDefaultChoiceStore = defineStore({
+                    id: "defaultChoiceStore",
+                    state: () => ({
+                        url: ["https://api.openai.com",
+                            "http://127.0.0.1",
+                            "https://api.deepinfra.com",
+                            "https://console.anthropic.com"],
+                        path: ["/v1/chat/completions",
+                            "/v1/openai/chat/completions",
+                            "/openai/v1/chat/completions"],
+                        model: ["gpt-3.5-turbo",
+                            'gpt-4',
+                            'mistralai/Mistral-7B-Instruct-v0.3',
+                            'meta-llama/Meta-Llama-3-8B-Instruct',
+                            'microsoft/Phi-3-medium-4k-instruct',
+                            'meta-llama/Meta-Llama-3-70B-Instruct',
+                            'Qwen/Qwen2-72B-Instruct'],
+                        authPrefix: ["Bearer", "Base", "Token"],
+                    }),
+                    persist: {
+                        enabled: true,
+                        strategies: [{ storage: sessionStorage }],
+                        // paths: ["apiKey"] 
+                    },
+                    actions: {
+                        resetState() {
+                            this.$reset();
+                        },
+                        updateStoreFromJSON(json) {
+                            this.$reset();
+                            this.$state = json;
+                        }
+                    },
+                });
+
+
+                const useChatbotStore = defineStore({
+                    id: "chatbotStore",
+                    state: () => ({
+                        apiKey: "",
+                        url: "https://api.openai.com",
+                        path: "/v1/chat/completions",
+                        model: "gpt-3.5-turbo",
+                        authPrefix: "Bearer",
+                        contentType: "application/json",
+                        max_tokens_type: "max_tokens",
+                        max_tokens_value: "",
+                        method: "POST",
+                        stream: true
+                    }),
+
+                    persist: {
+                        enabled: true,
+                        strategies: [{ storage: localStorage }],
+                        // paths: ["apiKey"] 
+                    },
+
+                    actions: {
+                        resetState() {
+                            this.$reset();
+                            defaultChoiceStore.resetState()
+                        },
+                        updateStoreFromJSON(json) {
+                            this.$reset();
+                            this.$state = json;
+                        }
+                    },
+
+                });
+
+                const chatbotStore = useChatbotStore();
+                const snackbarStore = useSnackbarStore();
+                const settingStore = useSettingStore();
+                const agentStore = useAgentStore();
+                const messageStore = useMessageStore();
+                const historyStore = useHistoryStore();
+                const defaultChoiceStore = useDefaultChoiceStore();
+
+                const createCompletion = async (conversation) => {
+                    try {
+                        // Create a completion (axios is not used here because it does not support streaming)
+                        const headers = {
+                            "Content-Type": chatbotStore.contentType,
+                        };
+
+                        if (chatbotStore.apiKey) headers.Authorization = `${chatbotStore.authPrefix} ${chatbotStore.apiKey}`
+
+                        const body = {
+                            messages: messageStore.promptMessage(conversation),
+                            model: chatbotStore.model,
+                            stream: chatbotStore.stream,
+                        }
+
+                        if (chatbotStore.max_tokens_value) {
+                            body[chatbotStore.max_tokens_type] = chatbotStore.max_tokens_value
+                        }
+
+                        const request = {
+                            headers: headers,
+                            method: chatbotStore.method,
+                            body: JSON.stringify(body),
+                            // mode: 'cors',
+                            // redirect: 'follow',
+                        };
+
+                        const completion = await fetch(
+                            chatbotStore.url + chatbotStore.path,
+                            request
+                        );
+
+                        // Handle errors
+                        if (!completion.ok) {
+                            const errorData = await completion.json();
+                            if (errorData.error?.message)
+                                snackbarStore.showErrorMessage(errorData.error.message);
+                            else
+                                snackbarStore.showErrorMessage(`${completion.status} ${completion.statusText}`);
+                            return;
+                        }
+
+                        // Create a reader
+                        const reader = completion.body?.getReader();
+                        if (!reader) {
+                            snackbarStore.showErrorMessage("Cannot read the stream.");
+                        }
+
+                        // Add the bot message
+                        messageStore.conversation.push({
+                            content: "",
+                            role: "assistant",
+                        });
+
+                        // Read the stream
+                        read(reader, messageStore.conversation);
+                    } catch (error) {
+
+                        snackbarStore.showErrorMessage(error.message);
+                    }
+                };
+
+                const read = async (
+                    reader,
+                    target,
+                ) => {
+                    // TextDecoder is a built-in object that allows you to convert a stream of bytes into a string
+                    const decoder = new TextDecoder("utf-8");
+                    // Destructure the value returned by reader.read()
+                    const { done, value } = await reader.read();
+
+                    // If the stream is done reading, release the lock on the reader
+                    if (done) {
+                        return reader.releaseLock();
+                    }
+                    // Convert the stream of bytes into a string
+                    const chunk = decoder.decode(value, { stream: true });
+                    // Split the string into an array of strings
+                    const jsons = chunk
+                        .split("data:")
+                        .map((data) => {
+                            // Trim any whitespace
+                            const trimData = data.trim();
+                            // If the string is empty, return undefined
+                            if (trimData === "") return undefined;
+                            // If the string is [DONE], return undefined
+                            if (trimData === "[DONE]") return undefined;
+                            // Otherwise, parse the string as JSON
+                            try {
+                                return JSON.parse(data)
+                            } catch (error) {
+                                console.log(data)
+                                // return undefined
+                                return data
+                            }
+                        })
+                        // Filter out any undefined values
+                        .filter((data) => data);
+                    // Combine the data into a single string
+                    const streamMessage = jsons
+                        .map((jn) => {
+                            if (!jn.choices) {
+                                return jn;
+                            }
+                            return jn.choices.map((choice) => {
+                                // Support both steam or not
+                                return choice.delta?.content || choice.message?.content
+                            }
+                            ).join("")
+                        }).join("");
+                    // Update the ref to the target element with the new string
+                    const response = streamMessage;
+                    if (target instanceof Array) {
+                        target[target.length - 1].content += response;
+                    } else {
+                        target = target += response;
+                    }
+                    // Repeat the process
+                    return read(reader, target);
+                };
+
+                messageStore.$subscribe((args, state) => {
+                    const asyncScroll = async () => {
+                        await nextTick();
+                        scrollToBottom(document.querySelector(".chat-bot"));
+                    }
+                    asyncScroll()
+                })
+
+                const scrollToBottom = (
+                    element,
+                    options = { behavior: "auto" }
+                ) => {
+                    window.scrollTo({
+                        ...options,
+                        top: element?.scrollHeight
+                    });
+                };
+
+                const initLottie = () => {
+                    lottie.loadAnimation({
+                        container: document.getElementById('lottie'), // the dom element that will contain the animation
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        path: 'https://lottie.host/c48163bd-af5b-444a-9ea8-cef4ed56ad80/99vd2ZUlwF.json' // the path to the animation json
+                    });
+                };
+
+                onMounted(async () => {
+                    initLottie();
+                    agentStore.initAgent();
+                });
+
+                const configFile = ref(null)
+
+                watch(configFile, (newValue, oldValue) => {
+                    if (newValue) {
+
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            // console.log(chatbotStore.getAllPathx)
+                            try {
+                                const json = JSON.parse(event.target.result)
+                                chatbotStore.updateStoreFromJSON(json.chatbotStore)
+                                defaultChoiceStore.updateStoreFromJSON(json.defaultChoiceStore)
+                            } catch {
+                                snackbarStore.showErrorMessage("Cannot parse config file")
+                            }
+
+                        };
+                        reader.readAsText(newValue);
+                    }
+
+                });
+
+                return {
+                    configFile,
+
+                    settingStore,
+                    agentStore,
+                    snackbarStore,
+
+                    messageStore,
+                    defaultChoiceStore,
+                    chatbotStore,
+                    historyStore,
+                };
+            }
+
+        })
+
+        const vuetify = createVuetify()
+        const pinia = createPinia()
+
+        pinia.use(piniaPersist.default)
+
+        app.use(vuetify)
+        app.use(pinia)
+        app.use(MdEditorV3.MdPreview)
+
+        app.mount('#app')
+
+    </script>
+</body>
+
 </html>
