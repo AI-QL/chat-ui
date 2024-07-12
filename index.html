@@ -360,7 +360,7 @@
                 <v-col class="input-icon">
                     <v-row>
                         <v-btn :size=settingStore.avatarSize class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-a-circle"
-                            @click="settingStore.agentDialog = true">
+                            @click="messageStore.init()">
                         </v-btn>
                     </v-row>
                     <v-row>
@@ -807,6 +807,10 @@
                         strategies: [{ storage: sessionStorage, paths: ["prompt"] }],
                     },
                     actions: {
+                        init() {
+                            this.conversation = [],
+                            snackbarStore.showSuccessMessage("Added new session.")
+                        },
                         handleKeydown(e) {
                             if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
                                 // 当同时按下 alt或者shift 和 enter 时，插入一个换行符
@@ -1134,7 +1138,9 @@
                     });
                 };
 
-                const initLottie = () => {
+                const initLottie = async () => {
+                    nextTick()
+                    console.log(document.getElementById('lottie'))
                     lottie.loadAnimation({
                         container: document.getElementById('lottie'), // the dom element that will contain the animation
                         renderer: 'svg',
@@ -1196,7 +1202,6 @@
                         };
                         reader.readAsText(newValue);
                     }
-
                 });
 
                 return {
