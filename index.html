@@ -76,7 +76,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            margin-bottom: 122px;
+            margin-bottom: 78px;
         }
 
         #lottie {
@@ -87,13 +87,14 @@
         .input-icon {
             width: auto;
             position: absolute;
+            padding-left: 10px;
             bottom: 0;
             flex: 1;
         }
 
         .input-area {
             display: flex;
-            padding: 5px;
+            padding: 0 5px;
 
             width: 100%;
             align-items: center;
@@ -105,18 +106,18 @@
 
             .input-panel {
                 flex: 1;
-                max-width: 1200px;
+                max-width: 1254px;
                 border-radius: 5px;
                 margin: 0 auto;
             }
 
             .input-box {
-                margin-left: 64px;
+                margin-left: 55px;
             }
         }
 
         .shadow {
-            box-shadow: 1px 1px 9px #1867C0;
+            box-shadow: 1px 1px 7px #1867C0;
         }
 
         .hidden {
@@ -306,7 +307,7 @@
                 <v-btn
                     @click="snackbarStore.showInfoMessage(messageStore.conversation[messageStore.conversation.length - 1]?.content)"
                     variant="text" size="45">
-                    <v-icon size="22">mdi-cloud-print-outline</v-icon>
+                    <v-icon size="24">mdi-cloud-print-outline</v-icon>
                     <v-tooltip activator="parent" location="left" text="Print Latest Response"></v-tooltip>
                 </v-btn>
                 <!-- ---------------------------------------------- -->
@@ -321,7 +322,7 @@
             <v-container class="chat-bot" v-if="messageStore.conversation.length > 0">
                 <div class="message-area" v-for="message in messageStore.conversation">
                     <div v-if="message.role === 'user'">
-                        <div class="pa-5 user-message">
+                        <div class="px-3 py-5 user-message">
                             <div class="message align-center text-pre-wrap">
                                 <v-avatar :size=settingStore.avatarSize class="mr-3 mr-lg-6" color="primary"
                                     icon="mdi-account-circle">
@@ -335,7 +336,7 @@
                         </div>
                     </div>
                     <div v-else>
-                        <div class="pa-5 assitant-message">
+                        <div class="px-3 py-5 assitant-message">
                             <div class="message">
                                 <v-avatar :size=settingStore.avatarSize class="mt-2 mr-3 mr-lg-6" color="teal"
                                     icon="mdi-lightning-bolt-circle">
@@ -358,31 +359,31 @@
             <div class="input-area">
                 <v-col class="input-icon">
                     <v-row>
-                        <v-btn size = "24" class="mx-2 mb-2" variant="elevated" icon="mdi-alpha-a-circle-outline"
+                        <v-btn size="26" class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-a-circle"
                             @click="settingStore.agentDialog = true">
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn size = "24" class="mx-2 mb-2" variant="elevated" icon="mdi-alpha-i-circle-outline"
+                        <v-btn size="26" class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-i-circle"
                             @click="settingStore.initDialog">
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn size = "24" class="mx-2 mb-7" variant="elevated" icon="mdi-alpha-q-circle-outline"
+                        <v-btn size="26" class="mx-6 mb-5" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
                             @click="settingStore.configHistory = true">
                         </v-btn>
                     </v-row>
                 </v-col>
 
-                <v-sheet elevation="0" class="input-panel d-flex align-end pa-1">
+                <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
                     <v-textarea class="input-box" color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" label="Q:"
                         :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3" auto-grow max-rows="15"
-                        @blur="settingStore.inputRow = 1" @input="inputTriggered()">
+                        @blur="settingStore.inputRow = 1">
 
                     </v-textarea>
-                    <v-btn class="ml-3 mb-6 shadow" color="primary" variant="elevated" @click="messageStore.sendMessage"
-                        icon="mdi-alpha-l">
+                    <v-btn size="43" class="ml-2 mb-7 shadow" color="primary" variant="elevated"
+                        @click="messageStore.sendMessage" icon="mdi-alpha-l">
 
                     </v-btn>
                 </v-sheet>
@@ -1127,14 +1128,6 @@
                     }, { deep: true });
                 */
 
-                const inputTriggered = () => {
-                    const chatElement = document.querySelector(".chat-bot");
-                    const inputElement = document.querySelector(".input-box");
-                    if (chatElement) {
-                        chatElement.style.marginBottom = `${inputElement.offsetHeight}px`
-                    }
-                }
-
                 const asyncScrollToBottom = async () => {
                     await nextTick();
                     scrollToBottom(document.querySelector(".chat-bot"));
@@ -1163,16 +1156,36 @@
                 onMounted(async () => {
                     initLottie();
                     agentStore.initAgent();
-                    resize()
-                    window.onresize = () => resize()
+                    resizeAvatar()
+                    window.onresize = () => resizeAvatar()
+                    resizeInputBox()
                 });
 
-                const resize = () => {
-                    if (window.innerWidth <= 800) {
-                            settingStore.avatarSize = 24
-                        } else {
-                            settingStore.avatarSize = 48
+                const resizeInputBox = () => {
+                    inputBox = document.querySelector(".input-box");
+                    const handleResize = (entries) => {
+                        for (const entry of entries) {
+                            if (entry.target === inputBox) {
+                                const chatElement = document.querySelector(".chat-bot");
+                                if (chatElement) {
+                                    chatElement.style.marginBottom = `${entry.contentRect.height}px`
+                                    asyncScrollToBottom()
+                                }
+                            }
                         }
+                    };
+                    const resizeObserver = new ResizeObserver(handleResize);
+                    if (inputBox) {
+                        resizeObserver.observe(inputBox);
+                    }
+                };
+
+                const resizeAvatar = () => {
+                    if (window.innerWidth <= 800) {
+                        settingStore.avatarSize = 24
+                    } else {
+                        settingStore.avatarSize = 48
+                    }
                 };
 
                 const configFile = ref(null)
@@ -1198,8 +1211,6 @@
 
                 return {
                     configFile,
-
-                    inputTriggered,
 
                     settingStore,
                     agentStore,
