@@ -376,7 +376,7 @@
                 </v-col>
 
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
-                    <v-textarea class="input-box" color="primary" type="text" variant="solo" counter
+                    <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" label="Q:"
                         :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3" auto-grow max-rows="15"
                         @blur="settingStore.inputRow = 1">
@@ -1171,7 +1171,6 @@
                 };
 
                 const resizeAvatar = () => {
-                    console.log(window.innerWidth)
                     if (window.innerWidth <= 1340) {
                         settingStore.avatarSize = 26
                     } else {
