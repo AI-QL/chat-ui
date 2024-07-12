@@ -87,7 +87,7 @@
         .input-icon {
             width: auto;
             position: absolute;
-            padding-left: 10px;
+            padding-left: 7px;
             bottom: 0;
             flex: 1;
         }
@@ -106,13 +106,13 @@
 
             .input-panel {
                 flex: 1;
-                max-width: 1254px;
+                max-width: 1256.7px;
                 border-radius: 5px;
                 margin: 0 auto;
             }
 
             .input-box {
-                margin-left: 55px;
+                margin-left: 53px;
             }
         }
 
@@ -152,8 +152,8 @@
         .toolbox-button {
             position: fixed;
             background-color: #1867C0;
-            bottom: 100px;
-            right: -45px;
+            bottom: 94px;
+            right: -46px;
             z-index: 999;
             padding: 0.5rem 1rem;
             border-top-left-radius: 0.5rem;
@@ -177,7 +177,7 @@
         .toolbox {
             z-index: 999;
             position: fixed;
-            bottom: 150px;
+            bottom: 145px;
             right: 5px;
         }
 
@@ -322,9 +322,9 @@
             <v-container class="chat-bot" v-if="messageStore.conversation.length > 0">
                 <div class="message-area" v-for="message in messageStore.conversation">
                     <div v-if="message.role === 'user'">
-                        <div class="px-3 py-5 user-message">
-                            <div class="message align-center text-pre-wrap">
-                                <v-avatar :size=settingStore.avatarSize class="mr-3 mr-lg-6" color="primary"
+                        <div class="px-2 py-5 user-message">
+                            <div class="message text-pre-wrap">
+                                <v-avatar :size=settingStore.avatarSize class="mt-3 mr-3 mr-lg-6" color="primary"
                                     icon="mdi-account-circle">
                                 </v-avatar>
                                 <v-card class="gradient text-pre-wrap">
@@ -336,9 +336,9 @@
                         </div>
                     </div>
                     <div v-else>
-                        <div class="px-3 py-5 assitant-message">
+                        <div class="px-2 py-5 assitant-message">
                             <div class="message">
-                                <v-avatar :size=settingStore.avatarSize class="mt-2 mr-3 mr-lg-6" color="teal"
+                                <v-avatar :size=settingStore.avatarSize class="mt-3 mr-3 mr-lg-6" color="teal"
                                     icon="mdi-lightning-bolt-circle">
                                 </v-avatar>
                                 <v-card>
@@ -359,17 +359,17 @@
             <div class="input-area">
                 <v-col class="input-icon">
                     <v-row>
-                        <v-btn size="26" class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-a-circle"
+                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-a-circle"
                             @click="settingStore.agentDialog = true">
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn size="26" class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-i-circle"
+                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-i-circle"
                             @click="settingStore.initDialog">
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn size="26" class="mx-6 mb-5" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
+                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-5 mb-lg-6" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
                             @click="settingStore.configHistory = true">
                         </v-btn>
                     </v-row>
@@ -382,7 +382,7 @@
                         @blur="settingStore.inputRow = 1">
 
                     </v-textarea>
-                    <v-btn size="43" class="ml-2 mb-7 shadow" color="primary" variant="elevated"
+                    <v-btn size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
                         @click="messageStore.sendMessage" icon="mdi-alpha-l">
 
                     </v-btn>
@@ -423,7 +423,7 @@
                                         <template v-slot:prepend>
                                             <v-btn :color="historyStore.getColor(index)" class="mr-3" icon size="small"
                                                 @click="historyStore.select(index)">
-                                                {{item.raw.history.length}}
+                                                <b>{{item.raw.history.length}}</b>
                                             </v-btn>
                                         </template>
                                         <v-card-title>
@@ -716,7 +716,7 @@
                     id: "settingStore",
                     state: () => ({
                         inputRow: 1,
-                        avatarSize: 48,
+                        avatarSize: 24,
                         configDialog: false,
                         configHistory: false,
 
@@ -1181,10 +1181,11 @@
                 };
 
                 const resizeAvatar = () => {
-                    if (window.innerWidth <= 800) {
-                        settingStore.avatarSize = 24
+                    console.log(window.innerWidth)
+                    if (window.innerWidth <= 1340) {
+                        settingStore.avatarSize = 26
                     } else {
-                        settingStore.avatarSize = 48
+                        settingStore.avatarSize = 36
                     }
                 };
 
