@@ -65,6 +65,12 @@
 
 
     <style scoped lang="scss">
+        html,
+        .v-card,
+        .v-field__input {
+            scrollbar-width: thin;
+        }
+
         .chat-bot {
             height: 100%;
             display: flex;
@@ -78,8 +84,17 @@
             max-height: calc(100% - 50px);
         }
 
+        .input-icon {
+            width: auto;
+            position: absolute;
+            bottom: 0;
+            flex: 1;
+        }
+
         .input-area {
+            display: flex;
             padding: 5px;
+
             width: 100%;
             align-items: center;
 
@@ -89,9 +104,14 @@
             bottom: 0;
 
             .input-panel {
+                flex: 1;
                 max-width: 1200px;
                 border-radius: 5px;
                 margin: 0 auto;
+            }
+
+            .input-box {
+                margin-left: 64px;
             }
         }
 
@@ -303,7 +323,8 @@
                     <div v-if="message.role === 'user'">
                         <div class="pa-5 user-message">
                             <div class="message align-center text-pre-wrap">
-                                <v-avatar class="mr-3 mr-lg-6" color="primary" icon="mdi-account-circle">
+                                <v-avatar :size=settingStore.avatarSize class="mr-3 mr-lg-6" color="primary"
+                                    icon="mdi-account-circle">
                                 </v-avatar>
                                 <v-card class="gradient text-pre-wrap">
                                     <v-card-text>
@@ -316,7 +337,8 @@
                     <div v-else>
                         <div class="pa-5 assitant-message">
                             <div class="message">
-                                <v-avatar class="mt-2 mr-3 mr-lg-6" color="teal" icon="mdi-lightning-bolt-circle">
+                                <v-avatar :size=settingStore.avatarSize class="mt-2 mr-3 mr-lg-6" color="teal"
+                                    icon="mdi-lightning-bolt-circle">
                                 </v-avatar>
                                 <v-card>
                                     <md-preview editor-id='preview-only' :model-value="message.content" language="en-US"
@@ -332,24 +354,39 @@
             <v-container v-else>
                 <div id="lottie"></div>
             </v-container>
+
             <div class="input-area">
+                <v-col class="input-icon">
+                    <v-row>
+                        <v-btn size = "24" class="mx-2 mb-2" variant="elevated" icon="mdi-alpha-a-circle-outline"
+                            @click="settingStore.agentDialog = true">
+                        </v-btn>
+                    </v-row>
+                    <v-row>
+                        <v-btn size = "24" class="mx-2 mb-2" variant="elevated" icon="mdi-alpha-i-circle-outline"
+                            @click="settingStore.initDialog">
+                        </v-btn>
+                    </v-row>
+                    <v-row>
+                        <v-btn size = "24" class="mx-2 mb-7" variant="elevated" icon="mdi-alpha-q-circle-outline"
+                            @click="settingStore.configHistory = true">
+                        </v-btn>
+                    </v-row>
+                </v-col>
+
                 <v-sheet elevation="0" class="input-panel d-flex align-end pa-1">
-                    <v-btn class="mx-2 mb-6" variant="elevated" icon="mdi-history"
-                        @click="settingStore.configHistory = true">
-                    </v-btn>
-                    <v-btn class="mx-2 mb-6" variant="elevated" icon="mdi-cog-outline" @click="settingStore.initDialog">
-                    </v-btn>
-                    <v-textarea class="input-box mx-1 mt-5" color="primary" type="text" variant="solo" counter
+                    <v-textarea class="input-box" color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" label="Q:"
                         :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3" auto-grow max-rows="15"
                         @blur="settingStore.inputRow = 1" @input="inputTriggered()">
 
                     </v-textarea>
-                    <v-btn class="mx-2 mb-6 shadow" color="primary" variant="elevated" @click="messageStore.sendMessage"
-                        icon="mdi-send">
+                    <v-btn class="ml-3 mb-6 shadow" color="primary" variant="elevated" @click="messageStore.sendMessage"
+                        icon="mdi-alpha-l">
 
                     </v-btn>
                 </v-sheet>
+
             </div>
 
             <!-- snackbar -->
@@ -368,7 +405,7 @@
             </v-snackbar>
 
             <v-dialog v-model="settingStore.configHistory" width="90vw" :max-width=800>
-                <v-card prepend-icon="mdi-history" title="History" flat>
+                <v-card prepend-icon="mdi-history" title="Query History" flat>
                     <template v-slot:append>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -376,13 +413,10 @@
                         </v-card-actions>
                     </template>
 
-
                     <v-data-iterator :items="historyStore.conversation" items-per-page="-1" class="ma-4 mt-0">
-
-
                         <template v-slot:default="{ items }">
                             <transition-group name="fade">
-                                <v-card v-for="(item, index) in items" variant="plain" :key="item.raw.id" flat>
+                                <v-card v-for="(item, index) in items" variant="plain" :key="item.raw.id">
                                     <v-divider></v-divider>
                                     <v-card-item>
                                         <template v-slot:prepend>
@@ -398,30 +432,23 @@
                                             {{ item.raw.history[item.raw.history.length-1]?.content || "NA" }}
 
                                         </v-card-subtitle>
+
                                         <template v-slot:append>
                                             <v-btn icon="mdi-delete-outline" variant="text"
                                                 @click="historyStore.deleteById(index)"></v-btn>
                                         </template>
                                     </v-card-item>
-
-
                                 </v-card>
                             </transition-group>
-
                         </template>
-
-
                     </v-data-iterator>
-
                 </v-card>
-
-
 
             </v-dialog>
             <!-- dialog -->
             <v-dialog v-model="settingStore.configDialog" width="90vw" :max-width=800>
-                <v-card prepend-icon="mdi-cog-outline" title="Configuration">
-                    <v-card-text class="ma-2 pb-0">
+                <v-card prepend-icon="mdi-cog-outline" title="Interface Configuration">
+                    <v-card-text class="mt-2 pb-0">
                         <!-- ---------------------------------------------- -->
                         <!-- APIKEY -->
                         <!-- ---------------------------------------------- -->
@@ -454,8 +481,6 @@
                                                 {{chatbotStore.model}}
                                             </v-chip>
                                         </span>
-
-
                                 </v-expansion-panel-title>
 
                                 <v-expansion-panel-text>
@@ -481,8 +506,8 @@
                                         variant="outlined">
                                     </v-combobox>
                                 </v-expansion-panel-text>
-
                             </v-expansion-panel>
+
                             <v-expansion-panel>
                                 <v-expansion-panel-title v-slot="{ expanded }">
                                     <v-icon icon="mdi-account-key" start></v-icon>
@@ -509,6 +534,7 @@
                                             </v-chip>
                                         </span>
                                 </v-expansion-panel-title>
+
                                 <v-expansion-panel-text>
                                     <v-row class="px-2 mr-2">
                                         <v-col>
@@ -555,8 +581,6 @@
         </v-app>
 
     </div>
-
-
 
     <script setup lang="ts">
 
@@ -691,6 +715,7 @@
                     id: "settingStore",
                     state: () => ({
                         inputRow: 1,
+                        avatarSize: 48,
                         configDialog: false,
                         configHistory: false,
 
@@ -1088,10 +1113,19 @@
                     return read(reader, target);
                 };
 
+                messageStore.$subscribe((args, state) => {
+                    if (!messageStore.userMessage) {
+                        asyncScrollToBottom()
+                    }
+                })
+
+                /*
+                // it seems that watch has a small delay to scroll
                 watch(computed(() => messageStore.conversation),
                     (newValue, oldValue) => {
                         asyncScrollToBottom()
                     }, { deep: true });
+                */
 
                 const inputTriggered = () => {
                     const chatElement = document.querySelector(".chat-bot");
@@ -1099,6 +1133,11 @@
                     if (chatElement) {
                         chatElement.style.marginBottom = `${inputElement.offsetHeight}px`
                     }
+                }
+
+                const asyncScrollToBottom = async () => {
+                    await nextTick();
+                    scrollToBottom(document.querySelector(".chat-bot"));
                 }
 
                 const scrollToBottom = (
@@ -1110,11 +1149,6 @@
                         top: element?.scrollHeight
                     });
                 };
-
-                const asyncScrollToBottom = async () => {
-                    await nextTick();
-                    scrollToBottom(document.querySelector(".chat-bot"));
-                }
 
                 const initLottie = () => {
                     lottie.loadAnimation({
@@ -1129,7 +1163,17 @@
                 onMounted(async () => {
                     initLottie();
                     agentStore.initAgent();
+                    resize()
+                    window.onresize = () => resize()
                 });
+
+                const resize = () => {
+                    if (window.innerWidth <= 800) {
+                            settingStore.avatarSize = 24
+                        } else {
+                            settingStore.avatarSize = 48
+                        }
+                };
 
                 const configFile = ref(null)
 
