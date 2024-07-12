@@ -1114,19 +1114,10 @@
                     return read(reader, target);
                 };
 
-                messageStore.$subscribe((args, state) => {
-                    if (!messageStore.userMessage) {
-                        asyncScrollToBottom()
-                    }
-                })
-
-                /*
-                // it seems that watch has a small delay to scroll
                 watch(computed(() => messageStore.conversation),
                     (newValue, oldValue) => {
                         asyncScrollToBottom()
                     }, { deep: true });
-                */
 
                 const asyncScrollToBottom = async () => {
                     await nextTick();
@@ -1169,7 +1160,6 @@
                                 const chatElement = document.querySelector(".chat-bot");
                                 if (chatElement) {
                                     chatElement.style.marginBottom = `${entry.contentRect.height}px`
-                                    asyncScrollToBottom()
                                 }
                             }
                         }
