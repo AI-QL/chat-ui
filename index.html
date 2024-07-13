@@ -369,7 +369,7 @@
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-5 mb-lg-6" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
+                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-5" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
                             @click="settingStore.configHistory = true">
                         </v-btn>
                     </v-row>
@@ -391,7 +391,7 @@
             </div>
 
             <!-- snackbar -->
-            <v-snackbar v-model="snackbarStore.isShow" timeout="4000" :color="snackbarStore.type" class="elevation-3"
+            <v-snackbar v-model="snackbarStore.isShow" timeout="4000" :color="snackbarStore.type"
                 location="top">
                 <div class="d-flex align-center">
                     <v-icon class="mr-2">{{ snackbarStore.getIcon() }}</v-icon>
@@ -405,7 +405,7 @@
                 </template>
             </v-snackbar>
 
-            <v-dialog v-model="settingStore.configHistory" width="90vw" :max-width=800>
+            <v-dialog v-model="settingStore.configHistory" width="90vw" :max-width=800 max-height="90vh">
                 <v-card prepend-icon="mdi-history" title="Query History" flat>
                     <template v-slot:append>
                         <v-card-actions>
@@ -426,10 +426,10 @@
                                                 <b>{{item.raw.history.length}}</b>
                                             </v-btn>
                                         </template>
-                                        <v-card-title>
+                                        <v-card-title class="font-weight-bold text-caption">
                                             {{ item.raw.history[0]?.content || "NA" }}
                                         </v-card-title>
-                                        <v-card-subtitle>
+                                        <v-card-subtitle class="text-caption">
                                             {{ item.raw.history[item.raw.history.length-1]?.content || "NA" }}
 
                                         </v-card-subtitle>
@@ -1177,7 +1177,8 @@
                 };
 
                 const resizeAvatar = () => {
-                    if (window.innerWidth <= 1340) {
+                    // console.log(window.innerWidth)
+                    if (window.innerWidth <= 1310) {
                         settingStore.avatarSize = 26
                     } else {
                         settingStore.avatarSize = 36
