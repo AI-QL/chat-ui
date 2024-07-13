@@ -76,7 +76,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            margin-bottom: 78px;
+            margin-bottom: 122px;
         }
 
         .dialog-card{
@@ -90,12 +90,18 @@
             max-height: calc(100% - 50px);
         }
 
-        .input-icon {
+        .input-config {
             width: auto;
             position: absolute;
-            padding-left: 7px;
+            margin-left: 19px;
             bottom: 0;
+            border-radius: 20px;
+            background-color: white;
             flex: 1;
+        }
+
+        .input-icon {
+            margin-bottom: 0.8rem;
         }
 
         .input-area {
@@ -112,7 +118,8 @@
 
             .input-panel {
                 flex: 1;
-                max-width: 1256.7px;
+                border-top: 5px solid white;
+                max-width: 1264px;
                 border-radius: 5px;
                 margin: 0 auto;
             }
@@ -363,19 +370,19 @@
             </v-container>
 
             <div class="input-area">
-                <v-col class="input-icon">
+                <v-col class="input-config">
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-a-circle"
+                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated" icon="mdi-alpha-a-circle"
                             @click="messageStore.init()">
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-2" color="primary" variant="elevated" icon="mdi-alpha-i-circle"
+                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated" icon="mdi-alpha-i-circle"
                             @click="settingStore.initDialog">
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="mx-6 mb-5" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
+                        <v-btn :size=settingStore.avatarSize class="input-icon mb-5" color="primary" variant="elevated" icon="mdi-alpha-q-circle"
                             @click="settingStore.configHistory = true">
                         </v-btn>
                     </v-row>
@@ -1171,7 +1178,7 @@
                             if (entry.target === inputBox) {
                                 const chatElement = document.querySelector(".chat-bot");
                                 if (chatElement) {
-                                    chatElement.style.marginBottom = `${entry.contentRect.height}px`
+                                    chatElement.style.marginBottom = `${Math.max(entry.contentRect.height, 122)}px`
                                 }
                             }
                         }
