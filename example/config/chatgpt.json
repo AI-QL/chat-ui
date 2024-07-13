@@ -1,6 +1,7 @@
 {
     "chatbotStore": {
-        "apiKey": ""
+        "apiKey": "",
+        "url": "https://api.openai.com"
     },
     "defaultChoiceStore": {
         "model": [
