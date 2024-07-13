@@ -79,6 +79,12 @@
             margin-bottom: 78px;
         }
 
+        .dialog-card{
+            width: 960px;
+            max-width: 100vw;
+            max-height: 90vh;
+        }
+
         #lottie {
             height: calc(100vh - 50px);
             max-height: calc(100% - 50px);
@@ -259,7 +265,7 @@
                 </v-card>
             </v-dialog>
 
-            <v-dialog v-model="settingStore.editDialog" width="600">
+            <v-dialog v-model="settingStore.editDialog">
                 <v-card>
                     <v-card-title class="pa-4 d-flex align-center">
                         <span class="flex-fill">Edit Card</span>
@@ -405,7 +411,7 @@
                 </template>
             </v-snackbar>
 
-            <v-dialog v-model="settingStore.configHistory" width="90vw" :max-width=800 max-height="90vh">
+            <v-dialog v-model="settingStore.configHistory" class="dialog-card">
                 <v-card prepend-icon="mdi-history" title="Query History" flat>
                     <template v-slot:append>
                         <v-card-actions>
@@ -447,7 +453,7 @@
 
             </v-dialog>
             <!-- dialog -->
-            <v-dialog v-model="settingStore.configDialog" width="90vw" :max-width=800>
+            <v-dialog v-model="settingStore.configDialog" class="dialog-card">
                 <v-card prepend-icon="mdi-cog-outline" title="Interface Configuration">
                     <v-card-text class="mt-2 pb-0">
                         <!-- ---------------------------------------------- -->
