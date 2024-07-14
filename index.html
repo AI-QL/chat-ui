@@ -821,8 +821,12 @@
                     },
                     actions: {
                         init() {
-                            this.conversation = [],
-                            snackbarStore.showSuccessMessage("Added new session.")
+                            if (this.conversation.length === 0) {
+                                snackbarStore.showWarningMessage("Already in a fresh session.")
+                            } else {
+                                this.conversation = [];
+                                snackbarStore.showSuccessMessage("Added new session.")
+                            }
                         },
                         handleKeydown(e) {
                             if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
