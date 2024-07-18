@@ -1,0 +1,14 @@
+{
+    "chatbotStore": {
+        "apiKey": "",
+        "url": "https://api.deepseek.com",
+        "path": "/chat/completions",
+        "model": "deepseek-chat"
+    },
+    "defaultChoiceStore": {
+        "model": [
+            "deepseek-chat",
+            "deepseek-coder"
+        ]
+    }
+}
