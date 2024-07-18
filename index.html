@@ -1098,7 +1098,7 @@
                         let buffer = ''
 
                         // Read the stream
-                        read(reader, messageStore.conversation, buffer);
+                        read(reader, messageStore.conversation, buffer, chatbotStore.stream);
                     } catch (error) {
                         snackbarStore.showErrorMessage(error.message);
                     }
@@ -1107,7 +1107,8 @@
                 const read = async (
                     reader,
                     target,
-                    buffer
+                    buffer,
+                    stream
                 ) => {
                     // TextDecoder is a built-in object that allows you to convert a stream of bytes into a string
                     const decoder = new TextDecoder();
@@ -1121,75 +1122,73 @@
                     // Convert the stream of bytes into a string
                     const chunks = decoder.decode(value);
 
-                    // Split stream
-                    let parts = chunks.split('\n')
+                    if (stream) {
+                        // Split stream
+                        let parts = chunks.split('\n')
 
-                    if (parts.length === 1) {
-                        buffer += parts[0]
-                        return read(reader, target, buffer);
-                    }
+                        if (parts.length === 1) {
+                            buffer += parts[0]
+                            return read(reader, target, buffer);
+                        }
 
-                    if (buffer.length > 0) {
-                        parts[0] = buffer + parts[0];
-                        buffer = ''
-                    }
+                        if (buffer.length > 0) {
+                            parts[0] = buffer + parts[0];
+                            buffer = ''
+                        }
 
-                    const last = parts[parts.length - 1];
-                    if (last && last.length > 0) {
-                        buffer = parts.pop();
-                    }
+                        const last = parts[parts.length - 1];
+                        if (last && last.length > 0) {
+                            buffer = parts.pop();
+                        }
 
-                    const jsons = parts
-                        .map((line) => line.trim())
-                        .filter((line) => line.length > 0)
-                        .map((line) => {
-                            const pos = line.indexOf(':');
-                            const name = line.substring(0, pos);
-                            if (name !== 'data') {
-                                return undefined
-                            }
-                            const content = line.substring(pos + 1).trim()
-                            if (content.length === 0) {
-                                return undefined
-                            } else if (content === "[DONE]") {
-                                return undefined
-                            }
-                            try {
-                                const parsed = JSON.parse(content)
-                                const choices = parsed.choices
-                                return parseChoice(parsed.choices, target)
-                            } catch (e) {
-                                console.log(e, line)
-                                return undefined
-                            }
-                        })
-                        // Filter out any undefined values
-                        .filter((data) => data);
+                        parts
+                            .map((line) => line.trim())
+                            .filter((line) => line.length > 0)
+                            .forEach((line) => {
+                                const pos = line.indexOf(':');
+                                const name = line.substring(0, pos);
+                                if (name !== 'data') {
+                                    return
+                                }
+                                const content = line.substring(pos + 1).trim()
+                                if (content.length === 0) {
+                                    return
+                                } else if (content === "[DONE]") {
+                                    return
+                                }
+                                parseJson(content, target)
+                            })
 
-                    // server cannot support stream
-                    if (jsons.length === 0) {
-                        const parsed = JSON.parse(chunks)
-                        parseChoice(parsed.choices, target)
+                    } else {
+                        parseJson(chunks, target)
                     }
 
                     // Repeat the process
-                    return read(reader, target, buffer);
+                    return read(reader, target, buffer, stream);
                 };
 
-                const parseChoice = (choices, target) => {
-                    const choice = choices.map((choice) => {
-                        // Support both steam or not
-                        return choice.delta?.content || choice.message?.content
-                    })
+                const parseJson = (content, target) => {
+                    try {
+                        const parsed = JSON.parse(content)
+                        const choices = parsed.choices
+                        const choice = choices.map((choice) => {
+                            // Support both steam or not
+                            return choice.delta?.content || choice.message?.content
+                        })
+                        parseChoice(choice, target)
+                    } catch (e) {
+                        console.log(e, content)
+                        parseChoice(content, target)
+                    }
+                };
+
+                const parseChoice = (choice, target) => {
                     if (choice) {
                         if (target instanceof Array) {
                             target[target.length - 1].content += choice;
                         } else {
                             target = target += choice;
                         }
-                        return choice
-                    } else {
-                        return undefined
                     }
                 };
 
