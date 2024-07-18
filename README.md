@@ -23,3 +23,6 @@ By default, the Chatbot will use API format as OpenAI Chatgpt. You can insert yo
 Or change the `Endpoint` in configuration to use API from other vendors
 
 > You can download the config template from [example](./example/config) and use it for quick configuration
+
+## Demo
+![](./demo.gif)
