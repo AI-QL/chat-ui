@@ -966,15 +966,20 @@
                 const useDefaultChoiceStore = defineStore({
                     id: "defaultChoiceStore",
                     state: () => ({
-                        url: ["https://api.openai.com",
+                        url: [
+                            "https://api.openai.com",
                             "http://127.0.0.1",
                             "https://api.deepinfra.com",
+                            "https://api.deepseek.com",
                             "https://api.aiql.com"],
-                        path: ["/v1/chat/completions",
+                        path: [
+                            "/v1/chat/completions",
                             "/v1/openai/chat/completions",
                             "/openai/v1/chat/completions"],
-                        model: ["gpt-3.5-turbo",
-                            'gpt-4',
+                        model: [
+                            "gpt-4o-mini",
+                            "gpt-4o",
+                            'gpt-4-turbo',
                             'mistralai/Mistral-7B-Instruct-v0.3',
                             'meta-llama/Meta-Llama-3-8B-Instruct',
                             'microsoft/Phi-3-medium-4k-instruct',
@@ -1005,7 +1010,7 @@
                         apiKey: "",
                         url: "https://api.aiql.com",
                         path: "/v1/chat/completions",
-                        model: "gpt-3.5-turbo",
+                        model: "gpt-4o-mini",
                         authPrefix: "Bearer",
                         contentType: "application/json",
                         max_tokens_type: "max_tokens",
@@ -1128,7 +1133,7 @@
 
                         if (parts.length === 1) {
                             buffer += parts[0]
-                            return read(reader, target, buffer);
+                            return read(reader, target, buffer, stream);
                         }
 
                         if (buffer.length > 0) {
