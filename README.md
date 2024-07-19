@@ -6,15 +6,17 @@ By simplifying the structure and key functions, developers can quickly set up an
 
 ## How to use
 
-### Option 1: Goto [AIQL](https://www.aiql.com/)
+### Option 1: Goto demo [AIQL](https://www.aiql.com/)
 
-### Option 2: Download <a href="https://raw.githubusercontent.com/aiql-admin/chat-ui-lite/main/index.html" target="_blank">Index</a> and open it locally
+### Option 2: Download [Index](./index.html) and open it locally (recommended)
 
 ### Option 3: Deploy your own Chatbot by [Docker](https://hub.docker.com/repository/docker/aiql/chat-ui-lite/tags?page=1&ordering=last_updated)
-
 ```shell
 docker run -p 8080:8080 -d aiql/chat-ui-lite
 ```
+
+### Option 4: fork this repo and link it to [Cloudflare pages](https://developers.cloudflare.com/pages)
+- demo https://www2.aiql.com
 
 ## How to config
 
