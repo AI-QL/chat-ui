@@ -42,14 +42,14 @@
         function removeOtherLinks(link) {
             const links = document.querySelectorAll('link[rel="stylesheet"]');
             const linkTail = link.getAttribute('href').split('/').pop()
-            console.log("Loaded: ", linkTail)
+            // console.log("Loaded: ", linkTail)
             if (loadedLinks.includes(linkTail)) return;
             loadedLinks.push(linkTail);
             links.forEach(l => {
                 const lTail = l.getAttribute('href').split('/').pop()
                 if ((l !== link) && (lTail === linkTail)) {
                     l.remove();
-                    console.log("Removed: ", lTail)
+                    // console.log("Removed: ", lTail)
                 }
             });
         }
@@ -57,7 +57,7 @@
         function removeOtherScripts(link) {
             const links = document.querySelectorAll('script[src]');
             const linkTail = link.getAttribute('src').split('/').pop();
-            console.log("Loaded: ", linkTail)
+            // console.log("Loaded: ", linkTail)
 
             if (loadedScripts.includes(linkTail)) return;
             loadedScripts.push(linkTail);
@@ -66,7 +66,7 @@
                 const lTail = l.getAttribute('src').split('/').pop()
                 if ((l !== link) && (lTail === linkTail)) {
                     l.remove();
-                    console.log("Removed: ", lTail)
+                    // console.log("Removed: ", lTail)
                 }
             });
         }
@@ -149,6 +149,13 @@
     <style scoped lang="scss">
         [v-cloak] {
             display: none;
+        }
+
+        @font-face{
+            font-family:"Material Design Icons";
+            src:url("https://gcore.jsdelivr.net/npm/@mdi/font/fonts/materialdesignicons-webfont.woff2");
+            src:url("https://cdn.jsdmirror.com/npm/@mdi/font/fonts/materialdesignicons-webfont.woff2");
+            src:url("https://cdn.jsdelivr.net/npm/@mdi/font/fonts/materialdesignicons-webfont.woff2");
         }
 
         html,
@@ -350,17 +357,23 @@
                 <v-col class="input-config">
                     <v-row>
                         <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated"
-                            icon="mdi-alpha-a-circle" @click="messageStore.init()">
+                            icon @click="messageStore.init()">
+                            <v-icon v-if="settingStore.fontStatus">mdi-alpha-a-circle</v-icon>
+                            <div class="text-caption" v-else>A</div>
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated"
-                            icon="mdi-alpha-i-circle" @click="settingStore.initDialog">
+                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated" icon
+                            @click="settingStore.initDialog">
+                            <v-icon v-if="settingStore.fontStatus">mdi-alpha-i-circle</v-icon>
+                            <div class="text-caption" v-else>I</div>
                         </v-btn>
                     </v-row>
                     <v-row>
                         <v-btn :size=settingStore.avatarSize class="input-icon mb-5" color="primary" variant="elevated"
-                            icon="mdi-alpha-q-circle" @click="settingStore.configHistory = true">
+                            icon @click="settingStore.configHistory = true">
+                            <v-icon v-if="settingStore.fontStatus">mdi-alpha-q-circle</v-icon>
+                            <div class="text-caption" v-else>Q</div>
                         </v-btn>
                     </v-row>
                 </v-col>
@@ -373,7 +386,7 @@
 
                     </v-textarea>
                     <v-btn size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
-                        @click="messageStore.sendMessage" icon="mdi-alpha-l">
+                        @click="messageStore.sendMessage" icon><b>L</b>
 
                     </v-btn>
                 </v-sheet>
@@ -866,6 +879,7 @@
                         apiKeyShow: false,
 
                         toolboxShow: false,
+                        fontStatus: false
                     }),
                     actions: {
                         initDialog() {
@@ -876,7 +890,7 @@
                             historyStore.resetState()
                             chatbotStore.resetState()
                             defaultChoiceStore.resetState()
-                        }
+                        },
 
                     },
                 });
@@ -1395,6 +1409,10 @@
 
                     }, { deep: true });
 
+                document.fonts.ready.then(() => {
+                    settingStore.fontStatus = true
+                });
+
                 return {
                     configFile,
 
@@ -1406,6 +1424,7 @@
                     defaultChoiceStore,
                     chatbotStore,
                     historyStore,
+
                 };
             }
 
