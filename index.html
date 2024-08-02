@@ -349,8 +349,8 @@
             <div class="input-area">
                 <v-col class="input-config">
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated"
-                            icon @click="messageStore.init()">
+                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated" icon
+                            @click="messageStore.init()">
                             <v-icon v-if="settingStore.fontStatus">mdi-alpha-a-circle</v-icon>
                             <div class="text-caption" v-else>A</div>
                         </v-btn>
@@ -545,7 +545,8 @@
                                             v-model="chatbotStore.max_tokens_type" variant="outlined">
                                         </v-combobox>
                                         <v-combobox class="px-2" density='compact' label="MaxTokenValue"
-                                            v-model="chatbotStore.max_tokens_value" variant="outlined">
+                                            v-model="chatbotStore.max_tokens_value" type='number' single-line
+                                            variant="outlined">
                                         </v-combobox>
                                     </v-row>
                                     <v-combobox class="px-2" density='compact' label="ContentType"
@@ -1151,7 +1152,7 @@
                         }
 
                         if (chatbotStore.max_tokens_value) {
-                            body[chatbotStore.max_tokens_type] = chatbotStore.max_tokens_value
+                            body[chatbotStore.max_tokens_type] = parseInt(chatbotStore.max_tokens_value)
                         }
 
                         const request = {
