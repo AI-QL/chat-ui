@@ -11,6 +11,7 @@
   - md-editor-v3: https://github.com/imzbf/md-editor-v3
   - lottie-web: https://github.com/airbnb/lottie-web
   - vuedraggable: https://github.com/SortableJS/vue.draggable.next
+  - mammoth: https://github.com/mwilliamson/mammoth.js
 
    Copyright 2024 AIQL.COM
 
@@ -1265,15 +1266,21 @@
                 const parseJson = (content, target) => {
                     try {
                         const parsed = JSON.parse(content)
-                        const choices = parsed.choices
-                        const choice = choices.map((choice) => {
-                            // Support both steam or not
-                            return choice.delta?.content || choice.message?.content
-                        })
+                        const choice = parseChoices(parsed)
                         parseChoice(choice, target)
                     } catch (e) {
                         console.log(e, content)
                         parseChoice(content, target)
+                    }
+                };
+
+                const parseChoices = (parsed) => {
+                    if ('choices' in parsed) {
+                        return parsed.choices.map((choice) => choice.delta?.content || choice.message?.content)
+                    } else if ('response' in parsed) {
+                        return parsed.response
+                    } else {
+                        return parsed
                     }
                 };
 
