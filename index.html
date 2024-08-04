@@ -474,7 +474,7 @@
                                             </v-chip>
 
                                             <v-chip label color="primary" class="ma-1">
-                                                {{chatbotStore.model}}
+                                                {{chatbotStore.model || "No model" }}
                                             </v-chip>
                                         </span>
                                 </v-expansion-panel-title>
@@ -1099,9 +1099,9 @@
                     id: "chatbotStore",
                     state: () => ({
                         apiKey: "",
-                        url: "https://api.aiql.com",
+                        url: "https://ai.aiql.com",
                         path: "/v1/chat/completions",
-                        model: "gpt-4o-mini",
+                        model: "",
                         authPrefix: "Bearer",
                         contentType: "application/json",
                         max_tokens_type: "max_tokens",
