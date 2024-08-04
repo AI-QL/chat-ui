@@ -1,6 +1,8 @@
-# Chat-UI Lite
+# Chat UI
 
-The ChatUI is becoming increasingly complex, often encompassing an entire front-end project along with deployment solutions. This repository aims to construct the entire front-end UI using a single HTML file, aiming for a minimalist approach to create a chatbot.
+The UI of Chat is becoming increasingly complex, often encompassing an entire front-end project along with deployment solutions.
+
+This repository aims to construct the entire front-end UI using a single HTML file, aiming for a minimalist approach to create a chatbot.
 
 By simplifying the structure and key functions, developers can quickly set up and experiment with a functional chatbot, adhering to a slimmed-down project design philosophy.
 
