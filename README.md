@@ -11,9 +11,9 @@ By simplifying the structure and key functions, developers can quickly set up an
 
 ### Option 2: Download [Index](./index.html) and open it locally (recommended)
 
-### Option 3: Deploy your own Chatbot by [Docker](https://hub.docker.com/repository/docker/aiql/chat-ui-lite/tags?page=1&ordering=last_updated)
+### Option 3: Deploy your own Chatbot by [Docker](https://hub.docker.com/repository/docker/aiql/chat-ui/tags?page=1&ordering=last_updated)
 ```shell
-docker run -p 8080:8080 -d aiql/chat-ui-lite
+docker run -p 8080:8080 -d aiql/chat-ui
 ```
 
 ### Option 4: fork this repo and link it to [Cloudflare pages](https://developers.cloudflare.com/pages)
