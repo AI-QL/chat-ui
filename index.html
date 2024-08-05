@@ -74,36 +74,57 @@
     </script>
 
     <!-- Keep the order, vue should be the first -->
-    <script src="https://gcore.jsdelivr.net/npm/vue/dist/vue.global.prod.min.js"
+    <script async src="https://gcore.jsdelivr.net/npm/vue/dist/vue.global.prod.min.js"
         onload="removeOtherScripts(this)"></script>
-
     <script src="https://cdn.jsdmirror.com/npm/vue/dist/vue.global.prod.min.js"
         onload="removeOtherScripts(this)"></script>
 
     <!-- Vuetify -->
-    <script src="https://gcore.jsdelivr.net/npm/vuetify/dist/vuetify.js" onload="removeOtherScripts(this)"></script>
+    <script async src="https://gcore.jsdelivr.net/npm/vuetify/dist/vuetify.js"
+        onload="removeOtherScripts(this)"></script>
     <link href="https://gcore.jsdelivr.net/npm/vuetify/dist/vuetify.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-
-    <script src="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.js" onload="removeOtherScripts(this)"></script>
-    <link href="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.css" onload="removeOtherLinks(this)"
         rel="stylesheet">
 
     <!-- MDI -->
     <link href="https://gcore.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
         onload="removeOtherLinks(this)" rel="stylesheet">
-    <link href="https://cdn.jsdmirror.com/npm/@mdi/font/css/materialdesignicons.min.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css"
-        onload="removeOtherLinks(this)" rel="stylesheet">
 
     <!-- Pinia -->
-    <script src="https://gcore.jsdelivr.net/npm/vue-demi/lib/index.iife.min.js"
+    <script async src="https://gcore.jsdelivr.net/npm/vue-demi/lib/index.iife.min.js"
         onload="removeOtherScripts(this)"></script>
-    <script src="https://gcore.jsdelivr.net/npm/pinia/dist/pinia.iife.prod.js"
+    <script async src="https://gcore.jsdelivr.net/npm/pinia/dist/pinia.iife.prod.js"
         onload="removeOtherScripts(this)"></script>
-    <script src="https://gcore.jsdelivr.net/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"
+    <script async src="https://gcore.jsdelivr.net/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"
         onload="removeOtherScripts(this)"></script>
+
+    <!-- MD -->
+    <link href="https://gcore.jsdelivr.net/npm/md-editor-v3/lib/style.css" onload="removeOtherLinks(this)"
+        rel="stylesheet">
+    <script async src="https://gcore.jsdelivr.net/npm/md-editor-v3/lib/umd/index.js"
+        onload="removeOtherScripts(this)"></script>
+
+    <!-- Lottie -->
+    <script async src="https://gcore.jsdelivr.net/npm/lottie-web/build/player/lottie.min.js"
+        onload="removeOtherScripts(this)"></script>
+
+    <!-- Docx mammoth -->
+    <script async src="https://gcore.jsdelivr.net/npm/mammoth/mammoth.browser.js"
+        onload="removeOtherScripts(this)"></script>
+
+    <!-- Vue Draggable -->
+    <script async src="https://gcore.jsdelivr.net/npm/sortablejs/Sortable.min.js"
+        onload="removeOtherScripts(this)"></script>
+    <script async src="https://gcore.jsdelivr.net/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"
+        onload="removeOtherScripts(this)"></script>
+
+
+    <!-- Mirror CDN -->
+    <script src="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.js" onload="removeOtherScripts(this)"></script>
+    <link href="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.css" onload="removeOtherLinks(this)"
+        rel="stylesheet">
+
+    <link href="https://cdn.jsdmirror.com/npm/@mdi/font/css/materialdesignicons.min.css" onload="removeOtherLinks(this)"
+        rel="stylesheet">
 
     <script src="https://cdn.jsdmirror.com/npm/vue-demi/lib/index.iife.min.js"
         onload="removeOtherScripts(this)"></script>
@@ -112,35 +133,15 @@
     <script src="https://cdn.jsdmirror.com/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"
         onload="removeOtherScripts(this)"></script>
 
-    <!-- MD -->
-    <link href="https://gcore.jsdelivr.net/npm/md-editor-v3/lib/style.min.css" onload="removeOtherLinks(this)"
+    <link href="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/style.css" onload="removeOtherLinks(this)"
         rel="stylesheet">
-    <script src="https://gcore.jsdelivr.net/npm/md-editor-v3/lib/umd/index.min.js"
-        onload="removeOtherScripts(this)"></script>
-
-    <link href="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/style.min.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-    <script src="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/umd/index.min.js"
-        onload="removeOtherScripts(this)"></script>
-
-    <!-- Lottie -->
-    <script src="https://gcore.jsdelivr.net/npm/lottie-web/build/player/lottie.min.js"
+    <script src="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/umd/index.js"
         onload="removeOtherScripts(this)"></script>
 
     <script src="https://cdn.jsdmirror.com/npm/lottie-web/build/player/lottie.min.js"
         onload="removeOtherScripts(this)"></script>
 
-    <!-- Docx mammoth -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.js"
-        onload="removeOtherScripts(this)"></script>
-    <script src="https://gcore.jsdelivr.net/npm/mammoth/mammoth.browser.js" onload="removeOtherScripts(this)"></script>
     <script src="https://cdn.jsdmirror.com/npm/mammoth/mammoth.browser.js" onload="removeOtherScripts(this)"></script>
-
-
-    <!-- Vue Draggable -->
-    <script src="https://gcore.jsdelivr.net/npm/sortablejs/Sortable.min.js" onload="removeOtherScripts(this)"></script>
-    <script src="https://gcore.jsdelivr.net/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"
-        onload="removeOtherScripts(this)"></script>
 
     <script src="https://cdn.jsdmirror.com/npm/sortablejs/Sortable.min.js" onload="removeOtherScripts(this)"></script>
     <script src="https://cdn.jsdmirror.com/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"
@@ -337,10 +338,9 @@
                                     icon="mdi-lightning-bolt-circle">
                                 </v-avatar>
                                 <v-card>
-                                    <md-preview editor-id='preview-only' :model-value="message.content" language="en-US"
-                                        autoFoldThreshold=0 />
+                                    <md-preview :model-value="message.content" language="en-US"
+                                        :codeFoldable="false"></md-preview>
                                 </v-card>
-
                             </div>
                         </div>
                     </div>
