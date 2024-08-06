@@ -338,8 +338,9 @@
                                     icon="mdi-lightning-bolt-circle">
                                 </v-avatar>
                                 <v-card>
-                                    <md-preview :model-value="message.content" language="en-US"
-                                        :code-foldable="false"></md-preview>
+                                    <md-preview :model-value="message.content" language="en-US" :code-foldable="true"
+                                        auto-fold-threshold="Infinity" preview-theme="github"
+                                        code-theme="github"></md-preview>
                                 </v-card>
                             </div>
                         </div>
