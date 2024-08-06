@@ -1,7 +1,8 @@
 {
     "chatbotStore": {
         "apiKey": "",
-        "url": "https://api.aiql.com"
+        "url": "https://api.aiql.com",
+        "model": "gpt-4o-mini"
     },
     "defaultChoiceStore": {
         "model": [
