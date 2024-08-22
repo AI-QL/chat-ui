@@ -37,116 +37,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
 
-    <script>
-        var loadedScripts = [];
-        var loadedLinks = [];
-        function removeOtherLinks(link) {
-            const links = document.querySelectorAll('link[rel="stylesheet"]');
-            const linkTail = link.getAttribute('href').split('/').pop()
-            // console.log("Loaded: ", linkTail)
-            if (loadedLinks.includes(linkTail)) return;
-            loadedLinks.push(linkTail);
-            links.forEach(l => {
-                const lTail = l.getAttribute('href').split('/').pop()
-                if ((l !== link) && (lTail === linkTail)) {
-                    l.remove();
-                    // console.log("Removed: ", lTail)
-                }
-            });
-        }
-
-        function removeOtherScripts(link) {
-            const links = document.querySelectorAll('script[src]');
-            const linkTail = link.getAttribute('src').split('/').pop();
-            // console.log("Loaded: ", linkTail)
-
-            if (loadedScripts.includes(linkTail)) return;
-            loadedScripts.push(linkTail);
-
-            links.forEach(l => {
-                const lTail = l.getAttribute('src').split('/').pop()
-                if ((l !== link) && (lTail === linkTail)) {
-                    l.remove();
-                    // console.log("Removed: ", lTail)
-                }
-            });
-        }
-    </script>
-
     <!-- Keep the order, vue should be the first -->
-    <script async src="https://gcore.jsdelivr.net/npm/vue/dist/vue.global.prod.min.js"
-        onload="removeOtherScripts(this)"></script>
-    <script src="https://cdn.jsdmirror.com/npm/vue/dist/vue.global.prod.min.js"
-        onload="removeOtherScripts(this)"></script>
+    <script src="https://cdn.jsdmirror.com/npm/vue/dist/vue.global.prod.min.js"></script>
 
     <!-- Vuetify -->
-    <script async src="https://gcore.jsdelivr.net/npm/vuetify/dist/vuetify.js"
-        onload="removeOtherScripts(this)"></script>
-    <link href="https://gcore.jsdelivr.net/npm/vuetify/dist/vuetify.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
+    <script src="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.js"></script>
+    <link href="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.css" rel="stylesheet">
 
     <!-- MDI -->
-    <link href="https://gcore.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css"
-        onload="removeOtherLinks(this)" rel="stylesheet">
+    <link async href="https://cdn.jsdmirror.com/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
 
     <!-- Pinia -->
-    <script async src="https://gcore.jsdelivr.net/npm/vue-demi/lib/index.iife.min.js"
-        onload="removeOtherScripts(this)"></script>
-    <script async src="https://gcore.jsdelivr.net/npm/pinia/dist/pinia.iife.prod.js"
-        onload="removeOtherScripts(this)"></script>
-    <script async src="https://gcore.jsdelivr.net/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"
-        onload="removeOtherScripts(this)"></script>
+    <script src="https://cdn.jsdmirror.com/npm/vue-demi/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/pinia/dist/pinia.iife.prod.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"></script>
 
     <!-- MD -->
-    <link href="https://gcore.jsdelivr.net/npm/md-editor-v3/lib/style.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-    <script async src="https://gcore.jsdelivr.net/npm/md-editor-v3/lib/umd/index.js"
-        onload="removeOtherScripts(this)"></script>
+    <link href="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/umd/index.js"></script>
 
     <!-- Lottie -->
-    <script async src="https://gcore.jsdelivr.net/npm/lottie-web/build/player/lottie.min.js"
-        onload="removeOtherScripts(this)"></script>
-
+    <script src="https://cdn.jsdmirror.com/npm/lottie-web/build/player/lottie.min.js"></script>
     <!-- Docx mammoth -->
-    <script async src="https://gcore.jsdelivr.net/npm/mammoth/mammoth.browser.js"
-        onload="removeOtherScripts(this)"></script>
+    <script src="https://cdn.jsdmirror.com/npm/mammoth/mammoth.browser.js"></script>
 
     <!-- Vue Draggable -->
-    <script async src="https://gcore.jsdelivr.net/npm/sortablejs/Sortable.min.js"
-        onload="removeOtherScripts(this)"></script>
-    <script async src="https://gcore.jsdelivr.net/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"
-        onload="removeOtherScripts(this)"></script>
-
-
-    <!-- Mirror CDN -->
-    <script src="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.js" onload="removeOtherScripts(this)"></script>
-    <link href="https://cdn.jsdmirror.com/npm/vuetify/dist/vuetify.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-
-    <link href="https://cdn.jsdmirror.com/npm/@mdi/font/css/materialdesignicons.min.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-
-    <script src="https://cdn.jsdmirror.com/npm/vue-demi/lib/index.iife.min.js"
-        onload="removeOtherScripts(this)"></script>
-    <script src="https://cdn.jsdmirror.com/npm/pinia/dist/pinia.iife.prod.js"
-        onload="removeOtherScripts(this)"></script>
-    <script src="https://cdn.jsdmirror.com/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"
-        onload="removeOtherScripts(this)"></script>
-
-    <link href="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/style.css" onload="removeOtherLinks(this)"
-        rel="stylesheet">
-    <script src="https://cdn.jsdmirror.com/npm/md-editor-v3/lib/umd/index.js"
-        onload="removeOtherScripts(this)"></script>
-
-    <script src="https://cdn.jsdmirror.com/npm/lottie-web/build/player/lottie.min.js"
-        onload="removeOtherScripts(this)"></script>
-
-    <script src="https://cdn.jsdmirror.com/npm/mammoth/mammoth.browser.js" onload="removeOtherScripts(this)"></script>
-
-    <script src="https://cdn.jsdmirror.com/npm/sortablejs/Sortable.min.js" onload="removeOtherScripts(this)"></script>
-    <script src="https://cdn.jsdmirror.com/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"
-        onload="removeOtherScripts(this)"></script>
-
+    <script src="https://cdn.jsdmirror.com/npm/sortablejs/Sortable.min.js"></script>
+    <script src="https://cdn.jsdmirror.com/npm/vue3-draggable-next/dist/vuedraggable.umd.min.js"></script>
 
     <style scoped lang="scss">
         [v-cloak] {
@@ -339,8 +256,7 @@
                                 </v-avatar>
                                 <v-card>
                                     <md-preview :model-value="message.content" language="en-US" :code-foldable="true"
-                                        auto-fold-threshold="Infinity" preview-theme="github"
-                                        code-theme="github"></md-preview>
+                                        auto-fold-threshold="Infinity"></md-preview>
                                 </v-card>
                             </div>
                         </div>
@@ -1321,7 +1237,7 @@
                         renderer: 'svg',
                         loop: true,
                         autoplay: true,
-                        path: 'https://gcore.jsdelivr.net/gh/AI-QL/chat-ui/lottie.json' // the path to the animation json
+                        path: 'https://cdn.jsdmirror.com/gh/AI-QL/chat-ui/lottie.json' // the path to the animation json
                     });
                 };
 
