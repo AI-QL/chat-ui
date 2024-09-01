@@ -8,7 +8,7 @@ By simplifying the structure and key functions, developers can quickly set up an
 
 ## How to use
 
-### Option 1: Goto demo [AIQL](https://www.aiql.com/)
+### Option 1: Goto demo [AIQL](https://chat.aiql.com/)
 > The demo will use `Llama 3.1 8B` by default
 
 ### Option 2: Download [Index](./index.html) and open it locally (recommended)
