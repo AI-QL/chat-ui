@@ -1035,13 +1035,13 @@
                     id: "chatbotStore",
                     state: () => ({
                         apiKey: "",
-                        url: "https://ai.aiql.com",
-                        path: "/v1/chat/completions",
-                        model: "",
+                        url: "https://api2.aiql.com",
+                        path: "/chat/completions",
+                        model: "meta-llama/Meta-Llama-3.1-405B-Instruct",
                         authPrefix: "Bearer",
                         contentType: "application/json",
                         max_tokens_type: "max_tokens",
-                        max_tokens_value: "",
+                        max_tokens_value: "32000",
                         method: "POST",
                         stream: true
                     }),
