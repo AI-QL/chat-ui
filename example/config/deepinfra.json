@@ -3,22 +3,18 @@
         "apiKey": "",
         "url": "https://api.deepinfra.com",
         "path": "/v1/openai/chat/completions",
-        "model": "mistralai/Mistral-7B-Instruct-v0.3"
+        "model": "meta-llama/Meta-Llama-3.1-70B-Instruct",
+        "max_tokens_value": "1000000"
     },
     "defaultChoiceStore": {
         "model": [
-            "meta-llama/Meta-Llama-3-8B-Instruct",
-            "meta-llama/Meta-Llama-3-70B-Instruct",
+            "meta-llama/Meta-Llama-3.1-70B-Instruct",
+            "meta-llama/Meta-Llama-3.1-405B-Instruct",
+            "meta-llama/Meta-Llama-3.1-8B-Instruct",
             "mistralai/Mistral-7B-Instruct-v0.3",
-            "mistralai/Mixtral-8x7B-Instruct-v0.1",
-            "mistralai/Mixtral-8x22B-Instruct-v0.1",
+            "mistralai/Mistral-Nemo-Instruct-2407",
             "01-ai/Yi-34B-Chat",
-            "Qwen/Qwen2-72B-Instruct",
-            "google/gemma-1.1-7b-it",
-            "microsoft/Phi-3-medium-4k-instruct",
-            "microsoft/WizardLM-2-7B",
-            "microsoft/WizardLM-2-8x22B",
-            "llava-hf/llava-1.5-7b-hf"
+            "Qwen/Qwen2-72B-Instruct"
         ]
     }
 }
