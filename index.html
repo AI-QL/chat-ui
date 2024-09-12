@@ -475,7 +475,8 @@
                                         </v-checkbox>
                                     </v-row>
                                     <v-row class="px-3 mt-0 mb-0">
-                                        <v-combobox class="px-2" density='compact' label="MaxTokenPrefix" :items="defaultChoiceStore.max_tokens_type"
+                                        <v-combobox class="px-2" density='compact' label="MaxTokenPrefix"
+                                            :items="defaultChoiceStore.max_tokens_type"
                                             v-model="chatbotStore.max_tokens_type" variant="outlined">
                                         </v-combobox>
                                         <v-combobox class="px-2" density='compact' label="MaxTokenValue"
@@ -1006,17 +1007,18 @@
                             "gpt-4o-mini",
                             "gpt-4o",
                             'gpt-4-turbo',
-                            'mistralai/Mistral-7B-Instruct-v0.3',
-                            'meta-llama/Meta-Llama-3-8B-Instruct',
-                            'microsoft/Phi-3-medium-4k-instruct',
-                            'meta-llama/Meta-Llama-3-70B-Instruct',
+                            "meta-llama/Meta-Llama-3.1-70B-Instruct",
+                            "meta-llama/Meta-Llama-3.1-405B-Instruct",
+                            "meta-llama/Meta-Llama-3.1-8B-Instruct",
+                            "mistralai/Mistral-7B-Instruct-v0.3",
+                            "mistralai/Mistral-Nemo-Instruct-2407",
                             'Qwen/Qwen2-72B-Instruct'],
                         authPrefix: ["Bearer", "Base", "Token"],
                         max_tokens_type: ["max_tokens", "max_new_tokens"],
                     }),
                     persist: {
                         enabled: true,
-                        strategies: [{ storage: sessionStorage }],
+                        strategies: [{ storage: localStorage }],
                         // paths: ["apiKey"] 
                     },
                     actions: {
