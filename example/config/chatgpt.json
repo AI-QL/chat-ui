@@ -2,7 +2,9 @@
     "chatbotStore": {
         "apiKey": "",
         "url": "https://api.openai.com",
-        "model": "gpt-4o-mini"
+        "path": "/v1/chat/completions",
+        "model": "gpt-4o-mini",
+        "max_tokens_value": ""
     },
     "defaultChoiceStore": {
         "model": [
