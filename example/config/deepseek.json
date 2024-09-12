@@ -3,7 +3,8 @@
         "apiKey": "",
         "url": "https://api.deepseek.com",
         "path": "/chat/completions",
-        "model": "deepseek-chat"
+        "model": "deepseek-chat",
+        "max_tokens_value": ""
     },
     "defaultChoiceStore": {
         "model": [
