@@ -90,7 +90,7 @@
         }
 
         #lottie {
-            height: calc(95vh - 20px);
+            height: calc(99vh - 50px);
             max-height: calc(100% - 100px);
         }
 
@@ -381,7 +381,7 @@
                     <template v-slot:append>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="error" icon="mdi-delete-off-outline" @click="chatbotStore.resetState"></v-btn>
+                            <v-btn color="error" icon="mdi-refresh" @click="chatbotStore.resetState"></v-btn>
                         </v-card-actions>
                     </template>
 
@@ -456,6 +456,16 @@
                                                 "default" }}
                                             </v-chip>
                                             <v-chip label color="primary" class="ma-1">
+                                                {{"temperature: "}}
+                                                {{ chatbotStore.temperature ? chatbotStore.temperature :
+                                                "default" }}
+                                            </v-chip>
+                                            <v-chip label color="primary" class="ma-1">
+                                                {{"top_p: "}}
+                                                {{ chatbotStore.top_p ? chatbotStore.top_p :
+                                                "default" }}
+                                            </v-chip>
+                                            <v-chip label color="primary" class="ma-1">
                                                 {{ chatbotStore.authPrefix }}
                                             </v-chip>
                                             <v-chip label color="primary" class="ma-1">
@@ -482,6 +492,17 @@
                                         <v-combobox class="px-2" density='compact' label="MaxTokenValue"
                                             v-model="chatbotStore.max_tokens_value" type='number' single-line
                                             variant="outlined">
+                                        </v-combobox>
+                                    </v-row>
+                                    <v-row class="px-3 mt-0 mb-0">
+                                        <v-combobox class="px-2" density='compact' label="Temperature"
+                                            :items="defaultChoiceStore.temperature" type='number'
+                                            v-model="chatbotStore.temperature" variant="outlined"
+                                            :rules="[value => !isNaN(value) && parseFloat(value) >= 0 && parseFloat(value) <= 2]">
+                                        </v-combobox>
+                                        <v-combobox class="px-2" density='compact' label="Top P"
+                                            v-model="chatbotStore.top_p" type='number' variant="outlined"
+                                            :rules="[value => !isNaN(value) && parseFloat(value) >= 0 && parseFloat(value) <= 1]">
                                         </v-combobox>
                                     </v-row>
                                     <v-combobox class="px-2" density='compact' label="ContentType"
@@ -1006,15 +1027,17 @@
                         model: [
                             "gpt-4o-mini",
                             "gpt-4o",
-                            'gpt-4-turbo',
+                            "gpt-4-turbo",
+                            "Qwen/Qwen2.5-72B-Instruct",
+                            "meta-llama/Llama-3.2-11B-Vision-Instruct",
+                            "meta-llama/Llama-3.2-90B-Vision-Instruct",
                             "meta-llama/Meta-Llama-3.1-70B-Instruct",
-                            "meta-llama/Meta-Llama-3.1-405B-Instruct",
                             "meta-llama/Meta-Llama-3.1-8B-Instruct",
                             "mistralai/Mistral-7B-Instruct-v0.3",
                             "mistralai/Mistral-Nemo-Instruct-2407",
-                            'Qwen/Qwen2-72B-Instruct'],
+                        ],
                         authPrefix: ["Bearer", "Base", "Token"],
-                        max_tokens_type: ["max_tokens", "max_new_tokens"],
+                        max_tokens_type: ["max_tokens", "max_completion_tokens", "max_new_tokens"],
                     }),
                     persist: {
                         enabled: true,
@@ -1039,11 +1062,13 @@
                         apiKey: "",
                         url: "https://api2.aiql.com",
                         path: "/chat/completions",
-                        model: "meta-llama/Meta-Llama-3.1-70B-Instruct",
+                        model: "Qwen/Qwen2.5-72B-Instruct",
                         authPrefix: "Bearer",
                         contentType: "application/json",
                         max_tokens_type: "max_tokens",
                         max_tokens_value: "32000",
+                        temperature: "",
+                        top_p: "",
                         method: "POST",
                         stream: true
                     }),
@@ -1094,6 +1119,14 @@
                             body[chatbotStore.max_tokens_type] = parseInt(chatbotStore.max_tokens_value)
                         }
 
+                        if (chatbotStore.temperature) {
+                            body["temperature"] = parseFloat(chatbotStore.temperature)
+                        }
+
+                        if (chatbotStore.top_p) {
+                            body["top_p"] = parseFloat(chatbotStore.top_p)
+                        }
+
                         const request = {
                             headers: headers,
                             method: chatbotStore.method,
@@ -1110,10 +1143,13 @@
                         // Handle errors
                         if (!completion.ok) {
                             const errorData = await completion.json();
+                            console.log(errorData.error?.message);
                             if (errorData.error?.message)
-                                snackbarStore.showErrorMessage(errorData.error.message);
+                                snackbarStore.showErrorMessage(`${completion.status}: ${errorData.error.message}`);
+                            else if (errorData.detail[0]?.msg)
+                                snackbarStore.showErrorMessage(`${completion.status}${(" - " + errorData.detail[0]?.loc + ":") || ":"} ${errorData.detail[0]?.msg}`);
                             else
-                                snackbarStore.showErrorMessage(`${completion.status} ${completion.statusText}`);
+                                snackbarStore.showErrorMessage(`${completion.status}: ${completion.statusText}`);
                             return;
                         }
 

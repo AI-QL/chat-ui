@@ -4,6 +4,7 @@
         "url": "https://api.openai.com",
         "path": "/v1/chat/completions",
         "model": "gpt-4o-mini",
+        "max_tokens_type": "max_completion_tokens",
         "max_tokens_value": ""
     },
     "defaultChoiceStore": {
