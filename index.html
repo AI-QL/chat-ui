@@ -339,6 +339,7 @@
                     <template v-slot:append>
                         <v-card-actions>
                             <v-spacer></v-spacer>
+                            <v-btn color="primary" icon="mdi-download" @click="historyStore.downloadHistory"></v-btn>
                             <v-btn color="error" icon="mdi-delete-off-outline" @click="historyStore.resetState"></v-btn>
                         </v-card-actions>
                     </template>
@@ -1003,6 +1004,15 @@
                                 return "grey"
                             }
 
+                        },
+                        downloadHistory() {
+                            const blob = new Blob([JSON.stringify(this.conversation, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'history.json';
+                            a.click();
+                            URL.revokeObjectURL(url);
                         }
 
                     }
