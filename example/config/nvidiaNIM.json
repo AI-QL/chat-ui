@@ -1,0 +1,16 @@
+{
+    "chatbotStore": {
+        "apiKey": "",
+        "url": "https://nvidia.aiql.com",
+        "path": "/v1/chat/completions",
+        "model": "meta/llama-3.1-405b-instruct",
+        "max_tokens_value": ""
+    },
+    "defaultChoiceStore": {
+        "model": [
+            "meta/llama-3.1-405b-instruct",
+            "meta/llama-3.1-70b-instruct",
+            "mistralai/mixtral-8x22b-instruct-v0.1"
+        ]
+    }
+}

@@ -746,7 +746,7 @@
                                     }
                                 ));
 
-                            if (result) {
+                            if (result[0]?.content) {
                                 return [...result, ...conversation]
                             } else {
                                 return [...conversation]
