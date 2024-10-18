@@ -111,10 +111,7 @@
         .input-area {
             display: flex;
             padding: 0 5px;
-
             width: 100%;
-            align-items: center;
-
             position: fixed;
             left: 50%;
             transform: translate(-50%);
@@ -131,6 +128,13 @@
             .input-box {
                 margin-left: 53px;
             }
+        }
+
+        .input-img {
+            display: flex;
+            /* background-color: red; */
+            justify-content: flex-end;
+            align-items: flex-end;
         }
 
         .shadow {
@@ -169,7 +173,7 @@
         .toolbox-button {
             position: fixed;
             background-color: #1867C0;
-            bottom: 94px;
+            bottom: 194px;
             right: -46px;
             z-index: 999;
             padding: 0.5rem 1rem;
@@ -187,6 +191,17 @@
 
         }
 
+        .chat-images {
+            transition: all 0.2s;
+
+            &:hover {
+                transition: all 0.2s;
+                opacity: 0.5;
+                filter: grayscale(100%);
+                cursor: not-allowed;
+            }
+        }
+
         .md-editor-preview p {
             word-break: break-word;
         }
@@ -194,7 +209,7 @@
         .toolbox {
             z-index: 99;
             position: fixed;
-            bottom: 94px;
+            bottom: 194px;
             right: 5px;
         }
 
@@ -257,7 +272,13 @@
                                     icon="mdi-account-circle">
                                 </v-avatar>
                                 <v-card class="gradient text-pre-wrap">
-                                    <v-card-text>
+                                    <v-card-text v-if="Array.isArray(message.content)">
+                                        <div v-for="(item, index) in message.content" :key="index">
+                                            <div v-if="item.type=='text'" >{{ item.text }}</div>
+                                            <v-img class = "mb-3" width="300px" max-width="50vw" max-height="50vh" v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
+                                        </div>
+                                    </v-card-text>
+                                    <v-card-text v-else>
                                         {{ message.content }}
                                     </v-card-text>
                                 </v-card>
@@ -307,14 +328,21 @@
 
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
                     <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
-                        @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" label="Q:"
-                        :rows="settingStore.inputRow" @focus="settingStore.inputRow = 3" auto-grow max-rows="15"
-                        @blur="settingStore.inputRow = 1">
-
+                        @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
+                        @focus="settingStore.inputRow=3" :rows="settingStore.inputRow" auto-grow max-rows="15">
+                        <template v-slot:prepend-inner>
+                            <v-row>
+                                <v-col>
+                                    <v-file-input class="input-img mb-1" accept="image/png, image/jpeg" hide-input
+                                        v-model="messageStore.images"></v-file-input>
+                                    <v-img v-if=messageStore.base64 class="mt-5 chat-images" :src="messageStore.base64"
+                                        @click="messageStore.images=[]"></v-img>
+                                </v-col>
+                            </v-row>
+                        </template>
                     </v-textarea>
                     <v-btn size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
-                        @click="messageStore.sendMessage" icon><b>L</b>
-
+                        @click="messageStore.sendMessage" icon="mdi-send">
                     </v-btn>
                 </v-sheet>
 
@@ -357,13 +385,11 @@
                                             </v-btn>
                                         </template>
                                         <v-card-subtitle class="mt-1 font-weight-bold">
-                                            {{ item.raw.history[0]?.content || "NA" }}
+                                            {{ item.raw.history[0]?.content[1]?.text || item.raw.history[0]?.content || "NA" }}
                                         </v-card-subtitle>
                                         <v-card-subtitle>
-                                            {{ item.raw.history[item.raw.history.length-1]?.content || "NA" }}
-
+                                            {{ item.raw.history[item.raw.history.length-1]?.content[1]?.text || item.raw.history[item.raw.history.length-1]?.content || "NA" }}
                                         </v-card-subtitle>
-
                                         <template v-slot:append>
                                             <v-btn icon="mdi-delete-outline" variant="text"
                                                 @click="historyStore.deleteById(index)"></v-btn>
@@ -905,6 +931,8 @@
                     state: () => ({
                         userMessage: "",
                         conversation: [],
+                        images: [],
+                        base64: '',
                     }),
                     actions: {
                         init() {
@@ -929,13 +957,28 @@
                         sendMessage: async function () {
                             if (this.userMessage) {
                                 // Add the message to the list
-                                this.conversation.push({
-                                    content: this.userMessage,
-                                    role: "user",
-                                });
+
+
+                                const imageBase64 = this.base64;
+
+                                if (imageBase64) {
+                                    this.conversation.push({
+                                        content: [
+                                            { type: "image_url", image_url: { url: imageBase64 } },
+                                            { type: "text", text: this.userMessage }],
+                                        role: "user",
+                                    });
+
+                                } else {
+                                    this.conversation.push({
+                                        content: this.userMessage,
+                                        role: "user",
+                                    });
+                                }
 
                                 // Clear the input
                                 this.userMessage = "";
+                                this.images = [];
 
                                 // Create a completion
                                 if (this.conversation.length == 1) {
@@ -1072,7 +1115,7 @@
                         apiKey: "",
                         url: "https://api2.aiql.com",
                         path: "/chat/completions",
-                        model: "Qwen/Qwen2.5-72B-Instruct",
+                        model: "meta-llama/Llama-3.2-90B-Vision-Instruct",
                         authPrefix: "Bearer",
                         contentType: "application/json",
                         max_tokens_type: "max_tokens",
@@ -1282,6 +1325,21 @@
                     (newValue, oldValue) => {
                         asyncScrollToBottom()
                     }, { deep: true });
+
+                watch(computed(() => messageStore.images),
+                    (newValue, oldValue) => {
+                        if (newValue.length === 0) {
+                            messageStore.base64 = '';
+                        } else {
+                            const file = messageStore.images
+                            const reader = new FileReader()
+                            reader.onload = (e) => {
+                                messageStore.base64 = e.target.result
+                            }
+                            reader.readAsDataURL(file)
+                        }
+                    }, { deep: true });
+
 
                 const asyncScrollToBottom = async () => {
                     await nextTick();
