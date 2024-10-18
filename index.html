@@ -108,6 +108,8 @@
             margin-bottom: 0.8rem;
         }
 
+
+
         .input-area {
             display: flex;
             padding: 0 5px;
@@ -274,8 +276,9 @@
                                 <v-card class="gradient text-pre-wrap">
                                     <v-card-text v-if="Array.isArray(message.content)">
                                         <div v-for="(item, index) in message.content" :key="index">
-                                            <div v-if="item.type=='text'" >{{ item.text }}</div>
-                                            <v-img class = "mb-3" width="300px" max-width="50vw" max-height="50vh" v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
+                                            <div v-if="item.type=='text'">{{ item.text }}</div>
+                                            <v-img class="mb-3" width="300px" max-width="50vw" max-height="50vh"
+                                                v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
                                         </div>
                                     </v-card-text>
                                     <v-card-text v-else>
@@ -329,11 +332,11 @@
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
                     <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
-                        @focus="settingStore.inputRow=3" :rows="settingStore.inputRow" auto-grow max-rows="15">
+                        :rows="settingStore.inputRow" auto-grow max-rows="15">
                         <template v-slot:prepend-inner>
                             <v-row>
                                 <v-col>
-                                    <v-file-input class="input-img mb-1" accept="image/png, image/jpeg" hide-input
+                                    <v-file-input class="input-img mb-1" accept="image/*" hide-input
                                         v-model="messageStore.images"></v-file-input>
                                     <v-img v-if=messageStore.base64 class="mt-5 chat-images" :src="messageStore.base64"
                                         @click="messageStore.images=[]"></v-img>
@@ -385,10 +388,12 @@
                                             </v-btn>
                                         </template>
                                         <v-card-subtitle class="mt-1 font-weight-bold">
-                                            {{ item.raw.history[0]?.content[1]?.text || item.raw.history[0]?.content || "NA" }}
+                                            {{ item.raw.history[0]?.content[1]?.text || item.raw.history[0]?.content ||
+                                            "NA" }}
                                         </v-card-subtitle>
                                         <v-card-subtitle>
-                                            {{ item.raw.history[item.raw.history.length-1]?.content[1]?.text || item.raw.history[item.raw.history.length-1]?.content || "NA" }}
+                                            {{ item.raw.history[item.raw.history.length-1]?.content[1]?.text ||
+                                            item.raw.history[item.raw.history.length-1]?.content || "NA" }}
                                         </v-card-subtitle>
                                         <template v-slot:append>
                                             <v-btn icon="mdi-delete-outline" variant="text"
@@ -1331,15 +1336,40 @@
                         if (newValue.length === 0) {
                             messageStore.base64 = '';
                         } else {
-                            const file = messageStore.images
-                            const reader = new FileReader()
-                            reader.onload = (e) => {
-                                messageStore.base64 = e.target.result
+                            const file = messageStore.images; // Assuming you're working with a single image
+                            const reader = new FileReader();
+
+                            // Check the file type
+                            if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+                                // Convert the image to PNG
+                                const canvas = document.createElement('canvas');
+                                const img = new Image();
+
+                                img.onload = () => {
+                                    canvas.width = img.width;
+                                    canvas.height = img.height;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(img, 0, 0);
+
+                                    // Get the PNG data URL
+                                    canvas.toBlob((blob) => {
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => {
+                                            messageStore.base64 = e.target.result;
+                                        };
+                                        reader.readAsDataURL(blob);
+                                    }, 'image/png');
+                                };
+
+                                img.src = URL.createObjectURL(file);
+                            } else {
+                                reader.onload = (e) => {
+                                    messageStore.base64 = e.target.result
+                                }
+                                reader.readAsDataURL(file)
                             }
-                            reader.readAsDataURL(file)
                         }
                     }, { deep: true });
-
 
                 const asyncScrollToBottom = async () => {
                     await nextTick();
