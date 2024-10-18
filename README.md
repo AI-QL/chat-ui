@@ -9,7 +9,7 @@ By simplifying the structure and key functions, developers can quickly set up an
 ## How to use
 
 #### Option 1: Goto demo [AIQL](https://chat.aiql.com/)
-> The demo will use `Qwen 2.5` by default
+> The demo will use `Llama-3.2` by default, image upload is only supported for vision models
 
 #### Option 2: Download [Index](./index.html) and open it locally (recommended)
 
