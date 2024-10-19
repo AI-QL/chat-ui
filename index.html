@@ -281,9 +281,9 @@
                                                         v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
                                                 </template>
                                                 <template v-slot:default="{ isActive }">
-                                                    <v-img @click="isActive.value = false" contain width="100%" height="100%" max-width="75vw"
-                                                    max-height="75vh" v-if="item.type=='image_url'"
-                                                    :src="item.image_url.url"></v-img>
+                                                    <v-img @click="isActive.value = false" contain width="100%"
+                                                        height="100%" max-width="75vw" max-height="75vh"
+                                                        v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
                                                 </template>
                                             </v-dialog>
                                         </div>
@@ -968,7 +968,6 @@
                                 // 当同时按下 alt或者shift 和 enter 时，插入一个换行符
                                 e.preventDefault();
                                 const textarea = e.target;
-                                console.log(textarea)
                                 // Get the current cursor position
                                 const start = textarea.selectionEnd;
 
@@ -994,21 +993,26 @@
 
                                 const imageBase64 = this.base64;
 
+                                let conversation
+
                                 if (imageBase64) {
-                                    this.conversation.push({
+                                    const contentWithImage = {
                                         content: [
                                             { type: "image_url", image_url: { url: imageBase64 } },
                                             { type: "text", text: this.userMessage }],
                                         role: "user",
-                                    });
-
+                                    };
+                                    this.conversation.push(contentWithImage);
+                                    // Image is too large, only latest query could be kept
+                                    conversation = [contentWithImage]
                                 } else {
-                                    this.conversation.push({
+                                    const contentText = {
                                         content: this.userMessage,
                                         role: "user",
-                                    });
+                                    }
+                                    this.conversation.push(contentText);
+                                    conversation = this.conversation
                                 }
-
                                 // Clear the input
                                 this.userMessage = "";
                                 this.images = [];
@@ -1019,7 +1023,7 @@
                                 }
                                 historyStore.sync(this.conversation)
 
-                                await createCompletion(this.conversation);
+                                await createCompletion(conversation);
                                 historyStore.sync(this.conversation)
                             }
                         },
