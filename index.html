@@ -108,8 +108,6 @@
             margin-bottom: 0.8rem;
         }
 
-
-
         .input-area {
             display: flex;
             padding: 0 5px;
@@ -130,13 +128,6 @@
             .input-box {
                 margin-left: 53px;
             }
-        }
-
-        .input-img {
-            display: flex;
-            /* background-color: red; */
-            justify-content: flex-end;
-            align-items: flex-end;
         }
 
         .shadow {
@@ -277,8 +268,9 @@
                                     <v-card-text v-if="Array.isArray(message.content)">
                                         <div v-for="(item, index) in message.content" :key="index">
                                             <div v-if="item.type=='text'">{{ item.text }}</div>
-                                            <v-img class="mb-3" contain width="100%" height="100%" max-width="50vw" max-height="50vh"
-                                                v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
+                                            <v-img class="mb-3" contain width="100%" height="100%" max-width="50vw"
+                                                max-height="50vh" v-if="item.type=='image_url'"
+                                                :src="item.image_url.url"></v-img>
                                         </div>
                                     </v-card-text>
                                     <v-card-text v-else>
@@ -332,18 +324,20 @@
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
                     <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
+                        @focus="settingStore.setInputRow(3,0)" @blur="settingStore.setInputRow(1,150)"
                         :rows="settingStore.inputRow" auto-grow max-rows="15">
-                        <template v-slot:prepend-inner>
+                        <template v-slot:prepend>
                             <v-row>
                                 <v-col>
-                                    <v-file-input class="input-img mb-1" accept="image/*" hide-input
+                                    <v-file-input accept="image/*" hide-input
                                         v-model="messageStore.images"></v-file-input>
-                                    <v-img v-if=messageStore.base64 class="mt-5 chat-images" :src="messageStore.base64"
+                                    <v-img v-if=messageStore.base64 class="mt-2 chat-images" :src="messageStore.base64"
                                         @click="messageStore.images=[]"></v-img>
                                 </v-col>
                             </v-row>
                         </template>
                     </v-textarea>
+
                     <v-btn size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
                         @click="messageStore.sendMessage" icon="mdi-send">
                     </v-btn>
@@ -873,6 +867,11 @@
                             chatbotStore.resetState()
                             defaultChoiceStore.resetState()
                         },
+                        setInputRow(int, timeout) {
+                            setTimeout(() => {
+                                this.inputRow = int
+                            }, timeout);
+                        }
 
                     },
                 });
@@ -938,6 +937,7 @@
                         conversation: [],
                         images: [],
                         base64: '',
+                        textareaRef: ref(null),
                     }),
                     actions: {
                         init() {
@@ -952,7 +952,20 @@
                             if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
                                 // 当同时按下 alt或者shift 和 enter 时，插入一个换行符
                                 e.preventDefault();
-                                this.userMessage += "\n";
+                                const textarea = e.target;
+                                console.log(textarea)
+                                // Get the current cursor position
+                                const start = textarea.selectionEnd;
+
+                                // Insert '\n' at the current cursor position
+                                const textBefore = this.userMessage.substring(0, start);
+                                const textAfter = this.userMessage.substring(start);
+                                this.userMessage = textBefore + '\n' + textAfter;
+                                setTimeout(() => {
+                                    // Set the cursor position after the inserted '\n'
+                                    textarea.selectionStart = start + 1; // Move the cursor to the position after the newline
+                                    textarea.selectionEnd = start + 1;
+                                }, 0);
                             } else if (e.key === "Enter") {
                                 // 当只按下 enter 时，发送消息
                                 e.preventDefault();
@@ -1338,18 +1351,34 @@
                         } else {
                             const file = messageStore.images; // Assuming you're working with a single image
                             const reader = new FileReader();
+                            const MAX_WIDTH = 2048;
+                            const MAX_HEIGHT = 2048; // adjust these values as needed
+
                             reader.onload = (e) => {
                                 const img = new Image();
                                 img.onload = () => {
+                                    let width = img.width;
+                                    let height = img.height;
+
+                                    // Check if the image exceeds the maximum dimensions
+                                    if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+                                        // Calculate the scaling factor
+                                        const scaleFactor = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+
+                                        // Resize the image
+                                        width *= scaleFactor;
+                                        height *= scaleFactor;
+                                    }
+
                                     const canvas = document.createElement('canvas');
                                     const ctx = canvas.getContext('2d');
 
-                                    // Set canvas dimensions to match the image
-                                    canvas.width = img.width;
-                                    canvas.height = img.height;
+                                    // Set canvas dimensions to match the resized image
+                                    canvas.width = width;
+                                    canvas.height = height;
 
                                     // Draw the image on the canvas
-                                    ctx.drawImage(img, 0, 0);
+                                    ctx.drawImage(img, 0, 0, width, height);
 
                                     // Convert the canvas to a PNG data URL
                                     const pngDataUrl = canvas.toDataURL('image/png');
