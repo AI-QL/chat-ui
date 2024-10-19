@@ -990,29 +990,15 @@
                             if (this.userMessage) {
                                 // Add the message to the list
 
-
                                 const imageBase64 = this.base64;
 
-                                let conversation
+                                this.conversation.push({
+                                    content: imageBase64
+                                        ? [{ type: "image_url", image_url: { url: imageBase64 } }, { type: "text", text: this.userMessage }]
+                                        : this.userMessage,
+                                    role: "user",
+                                });
 
-                                if (imageBase64) {
-                                    const contentWithImage = {
-                                        content: [
-                                            { type: "image_url", image_url: { url: imageBase64 } },
-                                            { type: "text", text: this.userMessage }],
-                                        role: "user",
-                                    };
-                                    this.conversation.push(contentWithImage);
-                                    // Image is too large, only latest query could be kept
-                                    conversation = [contentWithImage]
-                                } else {
-                                    const contentText = {
-                                        content: this.userMessage,
-                                        role: "user",
-                                    }
-                                    this.conversation.push(contentText);
-                                    conversation = this.conversation
-                                }
                                 // Clear the input
                                 this.userMessage = "";
                                 this.images = [];
@@ -1022,6 +1008,16 @@
                                     historyStore.init()
                                 }
                                 historyStore.sync(this.conversation)
+
+                                // Image is too large, only latest query could be kept
+                                const conversation = this.conversation.reduce((newConversation, item) => {
+                                    if (item.role === "user" && item.content[0].type === "image_url") {
+                                        newConversation = [item];
+                                    } else {
+                                        newConversation.push(item);
+                                    }
+                                    return newConversation;
+                                }, []);
 
                                 await createCompletion(conversation);
                                 historyStore.sync(this.conversation)
