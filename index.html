@@ -195,6 +195,12 @@
             }
         }
 
+        .history-images {
+            &:hover {
+                cursor: zoom-in;
+            }
+        }
+
         .md-editor-preview p {
             word-break: break-word;
         }
@@ -268,9 +274,18 @@
                                     <v-card-text v-if="Array.isArray(message.content)">
                                         <div v-for="(item, index) in message.content" :key="index">
                                             <div v-if="item.type=='text'">{{ item.text }}</div>
-                                            <v-img class="mb-3" contain width="100%" height="100%" max-width="50vw"
-                                                max-height="50vh" v-if="item.type=='image_url'"
-                                                :src="item.image_url.url"></v-img>
+                                            <v-dialog>
+                                                <template v-slot:activator="{ props: activatorProps }">
+                                                    <v-img class="history-images mb-3" v-bind="activatorProps" contain
+                                                        width="100%" height="100%" max-width="50vw" max-height="50vh"
+                                                        v-if="item.type=='image_url'" :src="item.image_url.url"></v-img>
+                                                </template>
+                                                <template v-slot:default="{ isActive }">
+                                                    <v-img @click="isActive.value = false" contain width="100%" height="100%" max-width="75vw"
+                                                    max-height="75vh" v-if="item.type=='image_url'"
+                                                    :src="item.image_url.url"></v-img>
+                                                </template>
+                                            </v-dialog>
                                         </div>
                                     </v-card-text>
                                     <v-card-text v-else>
@@ -1353,13 +1368,13 @@
                             const reader = new FileReader();
                             const MAX_WIDTH = 2048;
                             const MAX_HEIGHT = 2048; // adjust these values as needed
-                            const JPEG_QUALITY = 0.8
 
                             reader.onload = (e) => {
                                 const img = new Image();
                                 img.onload = () => {
                                     let width = img.width;
                                     let height = img.height;
+                                    let quality = 0.8;
 
                                     // Check if the image exceeds the maximum dimensions
                                     if (width > MAX_WIDTH || height > MAX_HEIGHT) {
@@ -1369,6 +1384,8 @@
                                         // Resize the image
                                         width *= scaleFactor;
                                         height *= scaleFactor;
+                                        quality *= scaleFactor;
+
                                     }
 
                                     const canvas = document.createElement('canvas');
@@ -1382,7 +1399,7 @@
                                     ctx.drawImage(img, 0, 0, width, height);
 
                                     // Convert the canvas to a PNG data URL
-                                    const pngDataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+                                    const pngDataUrl = canvas.toDataURL('image/jpeg', quality);
 
                                     // Store the PNG data URL in messageStore.base64
                                     messageStore.base64 = pngDataUrl;
