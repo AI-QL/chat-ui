@@ -660,7 +660,7 @@
                 <div class="message text-pre-wrap">
                     <v-avatar :size=size class="mt-3 mr-3 mr-lg-6" color="primary" icon="mdi-account-circle">
                     </v-avatar>
-                    <v-card class="gradient text-pre-wrap">
+                    <tuui-chat-card class="gradient text-pre-wrap">
                         <v-card-text v-if="Array.isArray(message.content)">
                             <div v-for="(item, index) in message.content" :key="index">
                                 <div v-if="item.type=='text'">{{ item.text }}</div>
@@ -671,7 +671,7 @@
                         <v-card-text v-else>
                             {{ message.content }}
                         </v-card-text>
-                    </v-card>
+                    </tuui-chat-card>
                 </div>
             </div>
         </div>
@@ -680,10 +680,10 @@
                 <div class="message">
                     <v-avatar :size=size class="mt-3 mr-3 mr-lg-6" color="teal" icon="mdi-lightning-bolt-circle">
                     </v-avatar>
-                    <v-card>
+                    <tuui-chat-card>
                         <md-preview :model-value="message.content" language="en-US" :code-foldable="true"
                             auto-fold-threshold="Infinity"></md-preview>
-                    </v-card>
+                    </tuui-chat-card>
                 </div>
             </div>
         </div>
@@ -702,13 +702,13 @@
     </template>
 
     <template id="tuui-chat-card-template">
-        <v-container>
-            <v-hover v-slot="{ hover }">
-                <v-card :elevation="hover ? 16 : 2" :class="{ 'on-hover': hover }">
+        <v-hover>
+            <template v-slot:default="{ isHovering, props }">
+                <v-card v-bind="props" :elevation="isHovering ? 4 : 1">
                     <slot></slot>
                 </v-card>
-            </v-hover>
-        </v-container>
+            </template>
+        </v-hover>
     </template>
 
     <script type="module">
