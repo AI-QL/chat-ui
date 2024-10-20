@@ -120,7 +120,7 @@
             .input-panel {
                 flex: 1;
                 border-top: 5px solid white;
-                max-width: 1264px;
+                max-width: 1226px;
                 border-radius: 5px;
                 margin: 0 auto;
             }
@@ -405,6 +405,7 @@
                                             item.raw.history[item.raw.history.length-1]?.content || "NA" }}
                                         </v-card-subtitle>
                                         <template v-slot:append>
+                                            <v-btn color="primary" icon="mdi-download" variant="text" @click="historyStore.downloadById(index)"></v-btn>
                                             <v-btn icon="mdi-delete-outline" variant="text"
                                                 @click="historyStore.deleteById(index)"></v-btn>
                                         </template>
@@ -1081,16 +1082,22 @@
                             }
 
                         },
+                        downloadById(id) {
+                            const name =  this.conversation[id].id.replace(/[/: ]/g, '-');
+                            this.download(this.conversation[id].history, `history-${name}.json`);
+                        },
                         downloadHistory() {
-                            const blob = new Blob([JSON.stringify(this.conversation, null, 2)], { type: 'application/json' });
+                            this.download(this.conversation, 'history.json')
+                        },
+                        download(json, filename) {
+                            const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.href = url;
-                            a.download = 'history.json';
+                            a.download = filename;
                             a.click();
                             URL.revokeObjectURL(url);
                         }
-
                     }
                 });
 
@@ -1411,8 +1418,10 @@
                     }, { deep: true });
 
                 const asyncScrollToBottom = async () => {
-                    await nextTick();
-                    scrollToBottom(document.querySelector(".chat-bot"));
+                    // await nextTick();
+                    requestAnimationFrame(() => {
+                        scrollToBottom(document.querySelector(".chat-bot"));
+                    });
                 }
 
                 const scrollToBottom = (
