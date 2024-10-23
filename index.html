@@ -308,8 +308,14 @@
                         </template>
                     </v-textarea>
 
-                    <v-btn size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
-                        @click="messageStore.sendMessage" icon="mdi-send">
+                    <v-btn v-if="messageStore.userMessage" size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary"
+                        variant="elevated" @click="messageStore.sendMessage" icon="mdi-send">
+                    </v-btn>
+                    <v-btn v-else-if="messageStore.conversation.length > 0" size="small"
+                        class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
+                        @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
+                    <v-btn v-else size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="grey" variant="elevated"
+                        icon="mdi-send">
                     </v-btn>
                 </v-sheet>
 
@@ -712,14 +718,14 @@
     </template>
 
     <template id="tuui-chat-card-template">
-        <v-hover>
+        <v-hover open-delay="100">
             <template v-slot:default="{ isHovering, props }">
                 <v-card v-bind="props" :elevation="isHovering ? 4 : 2">
                     <slot :showcontent="showcontent"></slot>
                     <v-expand-transition>
-                        <div v-show="isHovering">
+                        <div v-if="isHovering">
                             <v-divider></v-divider>
-                            <v-card-actions class="ma-0">
+                            <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn v-if="showDelete" color="error" icon="mdi-delete-off-outline" size="x-small"
                                     variant="plain" @click="messages.splice(index, 1)"></v-btn>
@@ -752,7 +758,7 @@
                 showDelete: { type: Boolean, default: true },
                 showContent: { type: Boolean, default: false },
             },
-            setup() {
+            setup(props) {
                 const showcontent = ref(false);
 
                 return {
@@ -1058,7 +1064,25 @@
                                 this.sendMessage();
                             }
                         },
-                        sendMessage: async function () {
+                        resendMessage() {
+                            // const conversation = this.conversation.reduce((newConversation, item) => {
+                            let index = this.conversation.length - 1;
+                            while (index >= 0 && this.conversation[index].role !== "user") {
+                                index--;
+                            }
+
+                            // 如果找到了 role 为 "user" 的元素，丢弃它之后的所有元素
+                            if (index >= 0) {
+                                this.conversation.splice(index + 1);;
+                                console.log(this.conversation);
+
+                                this.userMessage = "";
+                                this.images = [];
+
+                                this.startInference();
+                            }
+                        },
+                        sendMessage() {
                             if (this.userMessage) {
                                 // Add the message to the list
 
@@ -1071,30 +1095,34 @@
                                     role: "user",
                                 });
 
-                                // Clear the input
                                 this.userMessage = "";
                                 this.images = [];
 
-                                // Create a completion
-                                if (this.conversation.length == 1) {
-                                    historyStore.init()
-                                }
-                                historyStore.sync(this.conversation)
+                                this.startInference();
 
-                                // Image is too large, only latest query could be kept
-                                const conversation = this.conversation.reduce((newConversation, item) => {
-                                    if (item.role === "user" && item.content[0].type === "image_url") {
-                                        newConversation = [item];
-                                    } else {
-                                        newConversation.push(item);
-                                    }
-                                    return newConversation;
-                                }, []);
-
-                                await createCompletion(conversation);
-                                historyStore.sync(this.conversation)
                             }
                         },
+                        startInference: async function () {
+                            // Clear the input
+                            // Create a completion
+                            if (this.conversation.length == 1) {
+                                historyStore.init()
+                            }
+                            historyStore.sync(this.conversation)
+
+                            // Image is too large, only latest query could be kept
+                            const conversation = this.conversation.reduce((newConversation, item) => {
+                                if (item.role === "user" && item.content[0].type === "image_url") {
+                                    newConversation = [item];
+                                } else {
+                                    newConversation.push(item);
+                                }
+                                return newConversation;
+                            }, []);
+
+                            await createCompletion(conversation);
+                            historyStore.sync(this.conversation)
+                        }
                     }
                 });
 
