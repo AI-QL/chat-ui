@@ -259,10 +259,13 @@
 <body>
     <div id="app" v-cloak>
         <v-app>
-            <v-container v-if="messageStore.conversation.length === 0">
-                <div id="lottie"></div>
+            <v-container v-show="messageStore.conversation.length === 0">
+                <div id="lottie" class="text-center text-h5">
+                    <a href="https://github.com/AI-QL/chat-ui" style="color: #1867C0" class="font-weight-bold text-decoration-none" target = "_blank">
+                        AI Query Layout</a>
+                </div>
             </v-container>
-            <v-container v-else class="chat-bot">
+            <v-container v-show="messageStore.conversation.length > 0" class="chat-bot">
                 <tuui-chat-box :messages="messageStore.conversation" :size="settingStore.avatarSize"></tuui-chat-box>
                 <div class="fill-area"></div>
             </v-container>
@@ -309,13 +312,16 @@
                     </v-textarea>
 
                     <v-btn v-if="messageStore.userMessage" size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary"
-                        variant="elevated" @click="messageStore.sendMessage" icon="mdi-send">
+                        variant="elevated" @click="messageStore.sendMessage" icon="mdi-arrow-up">
                     </v-btn>
+                    <v-btn v-else-if="messageStore.generating" size="small" class="ml-2 ml-lg-3 mb-7 shadow"
+                        color="primary" variant="elevated" @click="messageStore.generating = false"
+                        icon="mdi-stop"></v-btn>
                     <v-btn v-else-if="messageStore.conversation.length > 0" size="small"
                         class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
                         @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
                     <v-btn v-else size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="grey" variant="elevated"
-                        icon="mdi-send">
+                        icon="mdi-arrow-up">
                     </v-btn>
                 </v-sheet>
 
@@ -1030,10 +1036,11 @@
                         conversation: [],
                         images: [],
                         base64: '',
-                        textareaRef: ref(null),
+                        generating: false
                     }),
                     actions: {
                         init() {
+                            this.generating = false;
                             if (this.conversation.length === 0) {
                                 snackbarStore.showWarningMessage("Already in a fresh session.")
                             } else {
@@ -1074,10 +1081,6 @@
                             // when role == "user" is found，drop followings
                             if (index >= 0) {
                                 this.conversation.splice(index + 1);;
-
-                                this.userMessage = "";
-                                this.images = [];
-
                                 this.startInference();
                             }
                         },
@@ -1094,14 +1097,13 @@
                                     role: "user",
                                 });
 
-                                this.userMessage = "";
-                                this.images = [];
-
                                 this.startInference();
-
                             }
                         },
                         startInference: async function () {
+                            this.userMessage = "";
+                            this.images = [];
+                            this.generating = true;
                             // Clear the input
                             // Create a completion
                             if (this.conversation.length == 1) {
@@ -1374,7 +1376,8 @@
                     const { done, value } = await reader.read();
 
                     // If the stream is done reading, release the lock on the reader
-                    if (done) {
+                    if (done || !messageStore.generating) {
+                        messageStore.generating = false;
                         return reader.releaseLock();
                     }
                     // Convert the stream of bytes into a string
