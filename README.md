@@ -1,5 +1,27 @@
 # Chat UI
 
+<p align="left">
+  <a href="https://vuejs.org/">
+    <img src="https://img.shields.io/badge/Vue3-brightgreen.svg" alt="vue">
+  </a>
+  &nbsp&nbsp
+  <a href="https://vuetifyjs.com/">
+    <img src="https://img.shields.io/badge/Vuetify-blue.svg" alt="element-ui">
+  </a>
+  &nbsp&nbsp
+  <a>
+    <img src="https://img.shields.io/badge/HTML-red.svg">
+  </a>
+  &nbsp&nbsp
+  <a href="https://hub.docker.com/repository/docker/aiql/chat-ui/tags?page=1&ordering=last_updated">
+    <img src="https://img.shields.io/badge/Docker-lightskyblue.svg">
+  </a>
+  &nbsp&nbsp
+  <a href="https://github.com/AI-QL/chat-ui/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/AI-QL/chat-ui" alt="license">
+  </a>
+</p>
+
 The UI of Chat is becoming increasingly complex, often encompassing an entire front-end project along with deployment solutions.
 
 This repository aims to construct the entire front-end UI using a single HTML file, aiming for a minimalist approach to create a chatbot.
