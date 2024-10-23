@@ -1043,7 +1043,7 @@
                         },
                         handleKeydown(e) {
                             if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
-                                // 当同时按下 alt或者shift 和 enter 时，插入一个换行符
+                                // Alt/Shift + Enter, insert a \n
                                 e.preventDefault();
                                 const textarea = e.target;
                                 // Get the current cursor position
@@ -1059,7 +1059,7 @@
                                     textarea.selectionEnd = start + 1;
                                 }, 0);
                             } else if (e.key === "Enter") {
-                                // 当只按下 enter 时，发送消息
+                                // Only Enter is pressed, send message
                                 e.preventDefault();
                                 this.sendMessage();
                             }
@@ -1071,10 +1071,9 @@
                                 index--;
                             }
 
-                            // 如果找到了 role 为 "user" 的元素，丢弃它之后的所有元素
+                            // when role == "user" is found，drop followings
                             if (index >= 0) {
                                 this.conversation.splice(index + 1);;
-                                console.log(this.conversation);
 
                                 this.userMessage = "";
                                 this.images = [];
@@ -1217,9 +1216,6 @@
                             "/v1/openai/chat/completions",
                             "/openai/v1/chat/completions"],
                         model: [
-                            "gpt-4o-mini",
-                            "gpt-4o",
-                            "gpt-4-turbo",
                             "Qwen/Qwen2.5-72B-Instruct",
                             "meta-llama/Llama-3.2-11B-Vision-Instruct",
                             "meta-llama/Llama-3.2-90B-Vision-Instruct",
@@ -1360,7 +1356,7 @@
                         let buffer = ''
 
                         // Read the stream
-                        read(reader, messageStore.conversation, buffer, chatbotStore.stream);
+                        read(reader, messageStore.conversation[messageStore.conversation.length - 1], buffer, chatbotStore.stream);
                     } catch (error) {
                         snackbarStore.showErrorMessage(error.message);
                     }
@@ -1452,10 +1448,8 @@
 
                 const parseChoice = (choice, target) => {
                     if (choice) {
-                        if (target instanceof Array) {
-                            target[target.length - 1].content += choice;
-                        } else {
-                            target = target += choice;
+                        if (target.role == 'assistant') {
+                            target.content += choice;
                         }
                     }
                 };
