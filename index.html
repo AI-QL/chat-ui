@@ -52,6 +52,9 @@
     <script src="https://cdn.aiql.com/npm/vuetify/dist/vuetify.js"></script>
     <link href="https://cdn.aiql.com/npm/vuetify/dist/vuetify.css" rel="stylesheet">
 
+    <!-- Vue i18n -->
+    <script src="https://cdn.aiql.com/npm/vue-i18n/dist/vue-i18n.global.prod.min.js"></script>
+
     <!-- Pinia -->
     <script src="https://cdn.aiql.com/npm/vue-demi/lib/index.iife.min.js"></script>
     <script src="https://cdn.aiql.com/npm/pinia/dist/pinia.iife.prod.js"></script>
@@ -83,7 +86,7 @@
         }
 
         .fill-area {
-            height: 10px
+            height: 20px
         }
 
         .dialog-card {
@@ -275,7 +278,7 @@
                 <div id="lottie" class="text-center text-h5">
                     <a href="https://github.com/AI-QL/chat-ui" style="color: #1867C0"
                         class="font-weight-bold text-decoration-none" target="_blank">
-                        AI Query Layout</a>
+                        {{$t('$vuetify.dataIterator.title')}}</a>
                 </div>
             </v-container>
             <v-container v-show="messageStore.conversation.length > 0" class="chat-bot">
@@ -299,11 +302,30 @@
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="left-icon mb-5" color="primary" variant="elevated"
-                            icon @click="settingStore.configHistory = true">
+                        <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated" icon
+                            @click="settingStore.configHistory = true">
                             <v-icon v-if="settingStore.fontStatus">mdi-alpha-q-circle</v-icon>
                             <div class="text-caption" v-else>Q</div>
                         </v-btn>
+                    </v-row>
+                    <v-row>
+                        <v-menu transition="fade-transition">
+                            <template v-slot:activator="{ props }">
+                                <v-btn :size=settingStore.avatarSize class="left-icon mb-6" color="primary"
+                                    variant="elevated" icon v-bind="props">
+                                    <v-icon v-if="settingStore.fontStatus">mdi-alpha-l-circle</v-icon>
+                                    <div class="text-caption" v-else>Q</div>
+                                </v-btn>
+                            </template>
+                            <v-list>
+                                <v-list-item v-for="n in
+                                [{title: 'English', value: 'en'},
+                                {title: 'Svenska', value: 'sv'},
+                                {title: '简体中文', value: 'zhHans'}]" :key="n.value" @click="changeLanguage(n.value)"
+                                    :title="n.title" density="compact">
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
                     </v-row>
                 </v-col>
 
@@ -313,11 +335,11 @@
                     <v-container>
                         <v-row>
                             <v-spacer></v-spacer>
-                            <v-div class='ma-1'>
+                            <v-div class='ma-2'>
                                 <v-file-input accept="image/*" hide-input v-model="messageStore.images"
                                     prepend-icon="mdi-plus-circle-outline"></v-file-input>
                             </v-div>
-                            <v-btn class='ma-1' size="21" icon="$error" @click="messageStore.clear()">
+                            <v-btn class='ma-2' size="21" icon="$error" @click="messageStore.clear()">
                             </v-btn>
                         </v-row>
                         <v-row>
@@ -351,7 +373,7 @@
             <v-snackbar v-model="snackbarStore.isShow" timeout="4000" :color="snackbarStore.type" location="top">
                 <div class="d-flex align-center">
                     <v-icon class="mr-2">{{ snackbarStore.getIcon() }}</v-icon>
-                    <span>{{snackbarStore.message}}</span>
+                    <span>{{$t(snackbarStore.message)}}</span>
                 </div>
 
                 <template v-slot:actions>
@@ -362,7 +384,7 @@
             </v-snackbar>
 
             <v-dialog v-model="settingStore.configHistory" class="dialog-card">
-                <v-card prepend-icon="mdi-history" title="Query History" flat>
+                <v-card prepend-icon="mdi-history" :title="$t('$vuetify.dataIterator.q.title')" flat>
                     <template v-slot:append>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -407,7 +429,7 @@
             </v-dialog>
             <!-- dialog -->
             <v-dialog v-model="settingStore.configDialog" class="dialog-card">
-                <v-card prepend-icon="mdi-cog-outline" title="Interface Configuration">
+                <v-card prepend-icon="mdi-cog-outline" :title="$t('$vuetify.dataIterator.i.title')">
                     <template v-slot:append>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -422,7 +444,8 @@
                         <v-text-field density='compact' color="primary" variant="outlined"
                             :append-inner-icon="settingStore.apiKeyShow ? 'mdi-eye-off' : 'mdi-eye'"
                             :type="settingStore.apiKeyShow ? 'text' : 'password'" v-model="chatbotStore.apiKey"
-                            class="px-2 mb-4" label="API Key" prepend-inner-icon="mdi-key" clearable hide-details
+                            class="px-2 mb-4" :label="$t('$vuetify.dataIterator.i.apikey')" prepend-inner-icon="mdi-key"
+                            clearable hide-details
                             @click:append-inner="settingStore.apiKeyShow = !settingStore.apiKeyShow"></v-text-field>
 
                         <v-expansion-panels static tile variant="accordion" class="px-2 mb-4">
@@ -430,7 +453,7 @@
                                 <v-expansion-panel-title v-slot="{ expanded }">
                                     <v-icon icon="mdi-web" start></v-icon>
                                     <v-row no-gutters class="hidden">
-                                        <span v-if="expanded">Endpoint</span>
+                                        <span v-if="expanded">{{$t('$vuetify.dataIterator.i.endpoint')}}</span>
                                         <span v-else>
                                             <v-chip label color="primary" class="ma-1">
                                                 {{chatbotStore.url}}{{chatbotStore.path}}
@@ -446,23 +469,25 @@
                                     <!-- ---------------------------------------------- -->
                                     <!-- URL -->
                                     <!-- ---------------------------------------------- -->
-                                    <v-combobox density='compact' class="px-2" label="URL"
-                                        :items="defaultChoiceStore.url" v-model="chatbotStore.url" variant="outlined">
+                                    <v-combobox density='compact' class="px-2"
+                                        :label="$t('$vuetify.dataIterator.i.url')" :items="defaultChoiceStore.url"
+                                        v-model="chatbotStore.url" variant="outlined">
                                     </v-combobox>
 
                                     <!-- ---------------------------------------------- -->
                                     <!-- Path -->
                                     <!-- ---------------------------------------------- -->
-                                    <v-combobox density='compact' class="px-2" label="Path"
-                                        :items="defaultChoiceStore.path" v-model="chatbotStore.path" variant="outlined">
+                                    <v-combobox density='compact' class="px-2"
+                                        :label="$t('$vuetify.dataIterator.i.path')" :items="defaultChoiceStore.path"
+                                        v-model="chatbotStore.path" variant="outlined">
                                     </v-combobox>
 
                                     <!-- ---------------------------------------------- -->
                                     <!-- Model -->
                                     <!-- ---------------------------------------------- -->
-                                    <v-combobox density='compact' class="px-2" label="Model"
-                                        :items="defaultChoiceStore.model" v-model="chatbotStore.model"
-                                        variant="outlined">
+                                    <v-combobox density='compact' class="px-2"
+                                        :label="$t('$vuetify.dataIterator.i.model')" :items="defaultChoiceStore.model"
+                                        v-model="chatbotStore.model" variant="outlined">
                                     </v-combobox>
                                 </v-expansion-panel-text>
                             </v-expansion-panel>
@@ -471,7 +496,7 @@
                                 <v-expansion-panel-title v-slot="{ expanded }">
                                     <v-icon icon="mdi-account-key" start></v-icon>
                                     <v-row no-gutters class="hidden">
-                                        <span v-if="expanded">Advanced</span>
+                                        <span v-if="expanded">{{ $t('$vuetify.dataIterator.i.advanced') }}</span>
                                         <span v-else>
                                             <v-chip label color="primary" class="ma-1">
                                                 {{ chatbotStore.method }}
@@ -507,15 +532,17 @@
                                 <v-expansion-panel-text>
                                     <v-row class="px-2 mr-2">
                                         <v-col>
-                                            <v-combobox density='compact' label="Method" v-model="chatbotStore.method"
-                                                variant="outlined">
+                                            <v-combobox density='compact' :label="$t('$vuetify.dataIterator.i.method')"
+                                                v-model="chatbotStore.method" variant="outlined">
                                             </v-combobox>
                                         </v-col>
-                                        <v-checkbox v-model="chatbotStore.stream" label="Stream" color="primary">
+                                        <v-checkbox v-model="chatbotStore.stream"
+                                            :label="$t('$vuetify.dataIterator.i.stream')" color="primary">
                                         </v-checkbox>
                                     </v-row>
                                     <v-row class="px-3 mt-0 mb-0">
-                                        <v-combobox class="px-2" density='compact' label="MaxTokenPrefix"
+                                        <v-combobox class="px-2" density='compact'
+                                            :label="$t('$vuetify.dataIterator.i.maxTokensPrefix')"
                                             :items="defaultChoiceStore.max_tokens_type"
                                             v-model="chatbotStore.max_tokens_type" variant="outlined">
                                         </v-combobox>
@@ -525,20 +552,24 @@
                                         </v-combobox>
                                     </v-row>
                                     <v-row class="px-3 mt-0 mb-0">
-                                        <v-combobox class="px-2" density='compact' label="Temperature"
+                                        <v-combobox class="px-2" density='compact'
+                                            :label="$t('$vuetify.dataIterator.i.temperature')"
                                             :items="defaultChoiceStore.temperature" type='number'
                                             v-model="chatbotStore.temperature" variant="outlined"
                                             :rules="[value => !isNaN(value) && parseFloat(value) >= 0 && parseFloat(value) <= 2]">
                                         </v-combobox>
-                                        <v-combobox class="px-2" density='compact' label="Top P"
-                                            v-model="chatbotStore.top_p" type='number' variant="outlined"
+                                        <v-combobox class="px-2" density='compact'
+                                            :label="$t('$vuetify.dataIterator.i.topP')" v-model="chatbotStore.top_p"
+                                            type='number' variant="outlined"
                                             :rules="[value => !isNaN(value) && parseFloat(value) >= 0 && parseFloat(value) <= 1]">
                                         </v-combobox>
                                     </v-row>
-                                    <v-combobox class="px-2" density='compact' label="ContentType"
+                                    <v-combobox class="px-2" density='compact'
+                                        :label="$t('$vuetify.dataIterator.i.contentType')"
                                         v-model="chatbotStore.contentType" variant="outlined">
                                     </v-combobox>
-                                    <v-combobox class="px-2" density='compact' label="AuthPrefix"
+                                    <v-combobox class="px-2" density='compact'
+                                        :label="$t('$vuetify.dataIterator.i.authPrefix')"
                                         :items="defaultChoiceStore.authPrefix" v-model="chatbotStore.authPrefix"
                                         variant="outlined">
                                     </v-combobox>
@@ -549,7 +580,8 @@
                         <!-- Dialog Btn -->
                         <v-card-actions>
                             <v-file-input prepend-icon="" prepend-inner-icon="mdi-upload" class="mr-2"
-                                variant="outlined" v-model="configFile" label="Config File" accept="application/json"
+                                variant="outlined" v-model="configFile"
+                                :label="$t('$vuetify.dataIterator.i.configFile')" accept="application/json"
                                 single-line></v-file-input>
 
                             <v-spacer></v-spacer>
@@ -760,6 +792,8 @@
         const { createApp, ref, computed, onMounted, watch, nextTick, axios, defineProps, defineComponent } = Vue
         const { createVuetify } = Vuetify
         const { createPinia, defineStore, storeToRefs } = Pinia
+        const { createI18n, useI18n } = VueI18n
+        const { en, sv, zhHans, zhHant } = 'vuetify/locale'
 
         const TuuiImgDialog = {
             template: '#tuui-img-dialog-template',
@@ -965,7 +999,7 @@
                         apiKeyShow: false,
 
                         toolboxShow: false,
-                        fontStatus: false
+                        fontStatus: false,
                     }),
                     actions: {
                         initDialog() {
@@ -1046,10 +1080,10 @@
                     actions: {
                         init() {
                             if (this.conversation.length === 0) {
-                                snackbarStore.showWarningMessage("Already in a fresh session.")
+                                snackbarStore.showWarningMessage('$vuetify.dataIterator.snackbar.addfail')
                             } else {
                                 this.conversation = [];
-                                snackbarStore.showSuccessMessage("Added new session.")
+                                snackbarStore.showSuccessMessage('$vuetify.dataIterator.snackbar.addnew')
                             }
                         },
                         clear() {
@@ -1347,7 +1381,7 @@
                         // Create a reader
                         const reader = completion.body?.getReader();
                         if (!reader) {
-                            snackbarStore.showErrorMessage("Cannot read the stream.");
+                            snackbarStore.showErrorMessage('$vuetify.dataIterator.snackbar.parseStreamFail');
                         }
 
                         // Add the bot message
@@ -1590,7 +1624,7 @@
                                 chatbotStore.updateStoreFromJSON(json.chatbotStore)
                                 defaultChoiceStore.updateStoreFromJSON(json.defaultChoiceStore)
                             } catch {
-                                snackbarStore.showErrorMessage("Cannot parse config file")
+                                snackbarStore.showErrorMessage('$vuetify.dataIterator.snackbar.parseConfigFail')
                             }
 
                         };
@@ -1631,6 +1665,12 @@
                     settingStore.fontStatus = true
                 });
 
+                const { locale } = useI18n({ useScope: 'global' });
+
+                const changeLanguage = (lang) => {
+                    locale.value = lang;
+                };
+
                 return {
                     configFile,
 
@@ -1643,16 +1683,125 @@
                     chatbotStore,
                     historyStore,
 
+                    changeLanguage,
+
                 };
             }
 
         })
 
-        const vuetify = createVuetify()
+        const messages = {
+            en: {
+                $vuetify: {
+                    ...en,
+                    dataIterator: {
+                        title: 'AI Query Layout',
+                        q: { title: 'Query History' },
+                        i: {
+                            title: 'Interface Configuration',
+                            apikey: 'API Key',
+                            endpoint: 'Endpoint',
+                            url: 'URL',
+                            path: 'Path',
+                            model: 'Model',
+                            advanced: 'Advanced',
+                            method: 'HTTP Method',
+                            stream: 'Stream',
+                            maxTokensPrefix: 'Max Tokens Prefix',
+                            temperature: 'Temperature',
+                            topP: 'Top P',
+                            contentType: 'Content Type',
+                            authPrefix: 'Auth Prefix',
+                            configFile: 'Config File'
+                        },
+                        snackbar: {
+                            addnew: 'Added new session.',
+                            addfail: 'Already in a fresh session.',
+                            stopped: 'Generating stopped.',
+                            parseStreamFail: 'Cannot read the stream.',
+                            parseConfigFail: 'Cannot parse the config file.',
+                        }
+                    },
+                },
+            },
+            sv: {
+                $vuetify: {
+                    ...sv,
+                    dataIterator: {
+                        title: 'Layout för AI-frågor',
+                        q: { title: 'Frågehistorik' },
+                        i: {
+                            title: 'Konfiguration av gränssnitt',
+                            apikey: 'API Nyckel',
+                            endpoint: 'Slutpunkt',
+                            url: 'URL',
+                            path: 'Sökväg',
+                            model: 'Modell',
+                            stream: 'Strömma',
+                            configFile: 'Konfigurationsfil'
+                        },
+                        snackbar: {
+                            addnew: 'En ny session har lagts till.',
+                            addfail: 'Redan i en ny session.',
+                            stopped: 'Genereringen har stoppats.',
+                            parseStreamFail: 'Det går inte att läsa strömmen.',
+                            parseConfigFail: 'Det går inte att parsa konfigurationsfilen.',
+                        }
+                    },
+                },
+            },
+            zhHans: {
+                $vuetify: {
+                    ...zhHans,
+                    dataIterator: {
+                        title: 'AI 问询界面',
+                        q: { title: '历史记录' },
+                        i: {
+                            title: '接口配置',
+                            apikey: 'API 密钥',
+                            endpoint: '端口',
+                            url: '网址',
+                            path: '路径',
+                            model: '模型',
+                            advanced: '高级配置',
+                            method: 'HTTP 请求方法',
+                            stream: '流式输出',
+                            maxTokensPrefix: '最大令牌数前缀',
+                            temperature: '温度（随机性）',
+                            topP: '核采样（候选词范围）',
+                            contentType: '媒体类型',
+                            authPrefix: '鉴权请求头',
+                            configFile: '配置文件'
+                        },
+                        snackbar: {
+                            addnew: '已添加新会话',
+                            addfail: '已处于最新会话',
+                            stopped: '停止生成',
+                            parseStreamFail: '无法解析数据流',
+                            parseConfigFail: '无法解析配置文件',
+                        }
+                    },
+                },
+            },
+        }
+
+        const i18n = createI18n({
+            legacy: false, // Vuetify does not support the legacy mode of vue-i18n
+            locale: 'en',
+            fallbackLocale: 'en',
+            messages,
+        })
+
+        const vuetify = createVuetify({
+            locale: {
+                adapter: { i18n, useI18n },
+            },
+        })
         const pinia = createPinia()
 
         pinia.use(piniaPersist.default)
 
+        app.use(i18n)
         app.use(vuetify)
         app.use(pinia)
         app.use(MdEditorV3.MdPreview)
