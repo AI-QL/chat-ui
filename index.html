@@ -104,7 +104,7 @@
             flex: 1;
         }
 
-        .input-icon {
+        .left-icon {
             margin-bottom: 0.8rem;
         }
 
@@ -120,13 +120,38 @@
             .input-panel {
                 flex: 1;
                 border-top: 5px solid white;
-                max-width: 1226px;
+                max-width: 1200px;
                 border-radius: 5px;
                 margin: 0 auto;
             }
 
             .input-box {
                 margin-left: 53px;
+                margin-bottom: 1px;
+            }
+
+            .input-fab {
+                margin: 0 10px 37px 10px;
+                /* top left bot right*/
+            }
+
+            .input-icon {
+                margin-bottom: 30px;
+                margin-right: 20px;
+            }
+        }
+
+        .chat-images {
+            width: 30px;
+            max-height: 40px;
+            transition: all 0.2s;
+            /* margin-bottom: 20px; */
+
+            &:hover {
+                transition: all 0.2s;
+                opacity: 0.5;
+                filter: grayscale(100%);
+                cursor: not-allowed;
             }
         }
 
@@ -182,17 +207,6 @@
                 transition: all 0.5s;
             }
 
-        }
-
-        .chat-images {
-            transition: all 0.2s;
-
-            &:hover {
-                transition: all 0.2s;
-                opacity: 0.5;
-                filter: grayscale(100%);
-                cursor: not-allowed;
-            }
         }
 
         .history-images {
@@ -261,7 +275,8 @@
         <v-app>
             <v-container v-show="messageStore.conversation.length === 0">
                 <div id="lottie" class="text-center text-h5">
-                    <a href="https://github.com/AI-QL/chat-ui" style="color: #1867C0" class="font-weight-bold text-decoration-none" target = "_blank">
+                    <a href="https://github.com/AI-QL/chat-ui" style="color: #1867C0"
+                        class="font-weight-bold text-decoration-none" target="_blank">
                         AI Query Layout</a>
                 </div>
             </v-container>
@@ -272,21 +287,21 @@
             <div class="input-area">
                 <v-col class="input-config">
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated" icon
+                        <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated" icon
                             @click="messageStore.init()">
                             <v-icon v-if="settingStore.fontStatus">mdi-alpha-a-circle</v-icon>
                             <div class="text-caption" v-else>A</div>
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="input-icon" color="primary" variant="elevated" icon
+                        <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated" icon
                             @click="settingStore.initDialog">
                             <v-icon v-if="settingStore.fontStatus">mdi-alpha-i-circle</v-icon>
                             <div class="text-caption" v-else>I</div>
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="input-icon mb-5" color="primary" variant="elevated"
+                        <v-btn :size=settingStore.avatarSize class="left-icon mb-5" color="primary" variant="elevated"
                             icon @click="settingStore.configHistory = true">
                             <v-icon v-if="settingStore.fontStatus">mdi-alpha-q-circle</v-icon>
                             <div class="text-caption" v-else>Q</div>
@@ -295,34 +310,33 @@
                 </v-col>
 
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
+
                     <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
                         @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
                         @focus="settingStore.setInputRow(3,0)" @blur="settingStore.setInputRow(1,150)"
                         :rows="settingStore.inputRow" auto-grow max-rows="15">
-                        <template v-slot:prepend>
-                            <v-row>
-                                <v-col>
-                                    <v-file-input accept="image/*" hide-input
-                                        v-model="messageStore.images"></v-file-input>
-                                    <v-img v-if=messageStore.base64 class="mt-2 chat-images" :src="messageStore.base64"
-                                        @click="messageStore.images=[]"></v-img>
-                                </v-col>
-                            </v-row>
+                        <template v-slot:prepend-inner>
+                            <v-img v-show=messageStore.base64 class="chat-images" :src="messageStore.base64"
+                                @click="messageStore.images=[]"></v-img>
                         </template>
                     </v-textarea>
 
-                    <v-btn v-if="messageStore.userMessage" size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="primary"
-                        variant="elevated" @click="messageStore.sendMessage" icon="mdi-arrow-up">
-                    </v-btn>
-                    <v-btn v-else-if="messageStore.generating" size="small" class="ml-2 ml-lg-3 mb-7 shadow"
-                        color="primary" variant="elevated" @click="messageStore.generating = false"
-                        icon="mdi-stop"></v-btn>
-                    <v-btn v-else-if="messageStore.conversation.length > 0" size="small"
-                        class="ml-2 ml-lg-3 mb-7 shadow" color="primary" variant="elevated"
-                        @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
-                    <v-btn v-else size="small" class="ml-2 ml-lg-3 mb-7 shadow" color="grey" variant="elevated"
-                        icon="mdi-arrow-up">
-                    </v-btn>
+                    <div class="input-fab">
+                        <v-file-input accept="image/*" hide-input v-model="messageStore.images"></v-file-input>
+                    </div>
+                    <div class="input-icon">
+                        <v-btn v-if="messageStore.userMessage" size="small" color="primary" variant="elevated"
+                            @click="messageStore.sendMessage" icon="mdi-arrow-up">
+                        </v-btn>
+                        <v-btn v-else-if="messageStore.generating" size="small" color="primary" variant="elevated"
+                            @click="snackbarStore.showInfoMessage('Generating stopped.')" icon="mdi-stop"></v-btn>
+                        <v-btn v-else-if="messageStore.conversation.length > 0" size="small" color="primary"
+                            variant="elevated" @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
+                        <v-btn v-else size="small" color="grey" variant="elevated" icon="mdi-arrow-up">
+                        </v-btn>
+                    </div>
+
+
                 </v-sheet>
 
             </div>
@@ -643,15 +657,6 @@
                 <v-btn @click="settingStore.resetAll" variant="text" size="45">
                     <v-icon size="25" color="error">mdi-store-remove</v-icon>
                     <v-tooltip activator="parent" location="left" text="Reset All Config"></v-tooltip>
-                </v-btn>
-                <!-- ---------------------------------------------- -->
-                <!-- Debug -->
-                <!-- ---------------------------------------------- -->
-                <v-btn
-                    @click="snackbarStore.showInfoMessage(messageStore.conversation[messageStore.conversation.length - 1]?.content)"
-                    variant="text" size="45">
-                    <v-icon size="24">mdi-cloud-print-outline</v-icon>
-                    <v-tooltip activator="parent" location="left" text="Print Latest Response"></v-tooltip>
                 </v-btn>
                 <!-- ---------------------------------------------- -->
                 <!-- Close Btn -->
@@ -994,6 +999,7 @@
                             this.isShow = true;
                             this.message = message;
                             this.type = type;
+                            messageStore.generating = false
                         },
 
                         showErrorMessage(message) {
@@ -1003,18 +1009,11 @@
                             this.showMessage(message, "success");
                         },
                         showInfoMessage(message) {
-                            if (!message) {
-                                this.showWarningMessage("No Message to print")
-                            } else {
-                                console.log(message);
-                                this.showMessage("Print to console.log", "info");
-                            }
-
+                            this.showMessage(message, "info");
                         },
                         showWarningMessage(message) {
                             this.showMessage(message, "warning");
                         },
-
                         getIcon() {
                             const icon = {
                                 info: "mdi-information",
@@ -1040,7 +1039,6 @@
                     }),
                     actions: {
                         init() {
-                            this.generating = false;
                             if (this.conversation.length === 0) {
                                 snackbarStore.showWarningMessage("Already in a fresh session.")
                             } else {
@@ -1103,13 +1101,12 @@
                         startInference: async function () {
                             this.userMessage = "";
                             this.images = [];
-                            this.generating = true;
+
                             // Clear the input
                             // Create a completion
                             if (this.conversation.length == 1) {
-                                historyStore.init()
+                                historyStore.init(this.conversation)
                             }
-                            historyStore.sync(this.conversation)
 
                             // Image is too large, only latest query could be kept
                             const conversation = this.conversation.reduce((newConversation, item) => {
@@ -1122,7 +1119,6 @@
                             }, []);
 
                             await createCompletion(conversation);
-                            historyStore.sync(this.conversation)
                         }
                     }
                 });
@@ -1150,19 +1146,15 @@
                         deleteById(index) {
                             this.conversation.splice(index, 1);
                         },
-                        init() {
+                        init(conversation) {
                             this.conversation.unshift({
                                 id: this.getDate,
-                                history: []
+                                history: conversation
                             });
-                        },
-                        sync(conversation) {
-                            this.conversation[0].history = conversation
                         },
                         replace(id) {
                             this.deleteById(id)
-                            this.init()
-                            this.sync(messageStore.conversation)
+                            this.init(messageStore.conversation)
                         },
                         asyncReplace: async (id) => {
                             await nextTick();
@@ -1292,6 +1284,7 @@
 
                 const createCompletion = async (conversation) => {
                     try {
+                        messageStore.generating = true
                         // Create a completion (axios is not used here because it does not support streaming)
                         const headers = {
                             "Content-Type": chatbotStore.contentType,
