@@ -80,7 +80,10 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            margin-bottom: 122px;
+        }
+
+        .fill-area {
+            height: 10px
         }
 
         .dialog-card {
@@ -96,7 +99,7 @@
 
         .input-config {
             width: auto;
-            position: absolute;
+            position: fixed;
             margin-left: 19px;
             bottom: 0;
             border-radius: 20px;
@@ -130,19 +133,14 @@
                 margin-bottom: 1px;
             }
 
-            .input-fab {
-                margin: 0 10px 37px 10px;
-                /* top left bot right*/
-            }
-
             .input-icon {
-                margin-bottom: 30px;
-                margin-right: 20px;
+                margin: 0 10px 34px 10px;
+                /* top left bot right*/
             }
         }
 
         .chat-images {
-            width: 30px;
+            width: 25px;
             max-height: 40px;
             transition: all 0.2s;
             /* margin-bottom: 20px; */
@@ -309,21 +307,31 @@
                     </v-row>
                 </v-col>
 
+
+
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
-
-                    <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
-                        @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
-                        @focus="settingStore.setInputRow(3,0)" @blur="settingStore.setInputRow(1,150)"
-                        :rows="settingStore.inputRow" auto-grow max-rows="15">
-                        <template v-slot:prepend-inner>
-                            <v-img v-show=messageStore.base64 class="chat-images" :src="messageStore.base64"
-                                @click="messageStore.images=[]"></v-img>
-                        </template>
-                    </v-textarea>
-
-                    <div class="input-fab">
-                        <v-file-input accept="image/*" hide-input v-model="messageStore.images"></v-file-input>
-                    </div>
+                    <v-container>
+                        <v-row>
+                            <v-spacer></v-spacer>
+                            <v-div class='ma-1'>
+                                <v-file-input accept="image/*" hide-input v-model="messageStore.images"
+                                    prepend-icon="mdi-plus-circle-outline"></v-file-input>
+                            </v-div>
+                            <v-btn class='ma-1' size="21" icon="$error" @click="messageStore.clear()">
+                            </v-btn>
+                        </v-row>
+                        <v-row>
+                            <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
+                                @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
+                                @focus="settingStore.setInputRow(2,0)" @blur="settingStore.setInputRow(1,150)"
+                                :rows="settingStore.inputRow" auto-grow max-rows="15">
+                                <template v-slot:prepend-inner>
+                                    <v-img v-show=messageStore.base64 class="chat-images" :src="messageStore.base64"
+                                        @click="messageStore.images=[]"></v-img>
+                                </template>
+                            </v-textarea>
+                        </v-row>
+                    </v-container>
                     <div class="input-icon">
                         <v-btn v-if="messageStore.userMessage" size="small" color="primary" variant="elevated"
                             @click="messageStore.sendMessage" icon="mdi-arrow-up">
@@ -334,11 +342,9 @@
                             variant="elevated" @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
                         <v-btn v-else size="small" color="grey" variant="elevated" icon="mdi-arrow-up">
                         </v-btn>
+
                     </div>
-
-
                 </v-sheet>
-
             </div>
 
             <!-- snackbar -->
@@ -1046,6 +1052,10 @@
                                 snackbarStore.showSuccessMessage("Added new session.")
                             }
                         },
+                        clear() {
+                            this.userMessage = "";
+                            this.images = [];
+                        },
                         handleKeydown(e) {
                             if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
                                 // Alt/Shift + Enter, insert a \n
@@ -1099,9 +1109,7 @@
                             }
                         },
                         startInference: async function () {
-                            this.userMessage = "";
-                            this.images = [];
-
+                            this.clear();
                             // Clear the input
                             // Create a completion
                             if (this.conversation.length == 1) {
