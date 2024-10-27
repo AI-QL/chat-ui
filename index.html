@@ -269,7 +269,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background-color: grey;
         }
-        
     </style>
 </head>
 
@@ -284,7 +283,8 @@
                 </div>
             </v-container>
             <v-container v-show="messageStore.conversation.length > 0" class="chat-bot">
-                <tuui-chat-box :messages="messageStore.conversation" :size="settingStore.avatarSize"></tuui-chat-box>
+                <tuui-chat-box :messages="messageStore.conversation" :size="settingStore.avatarSize"
+                    :language="languageStore.getLocale"></tuui-chat-box>
                 <div class="fill-area"></div>
             </v-container>
             <div class="input-area">
@@ -322,9 +322,11 @@
                             <v-list class='mb-2'>
                                 <v-list-item v-for="n in
                                 [{title: 'English', value: 'en', name: 'united-states'},
+                                {title: 'Italiano', value: 'it', name: 'italy'},
+                                {title: '日本語', value: 'ja', name: 'japan'},
                                 {title: 'Svenska', value: 'sv', name: 'sweden'},
                                 {title: '简体中文', value: 'zhHans', name: 'china'}
-                                ]" :key="n.value" @click="changeLanguage(n.value)" density="compact">
+                                ]" :key="n.value" @click="languageStore.change(n.value)" density="compact">
                                     <template v-slot:prepend>
                                         <iconify-icon class='mr-3' :icon="`twemoji:flag-${n.name}`"></iconify-icon>
                                     </template>
@@ -363,7 +365,8 @@
                             @click="messageStore.sendMessage" icon="mdi-arrow-up">
                         </v-btn>
                         <v-btn v-else-if="messageStore.generating" size="small" color="primary" variant="elevated"
-                            @click="snackbarStore.showInfoMessage('$vuetify.dataIterator.snackbar.stopped')" icon="mdi-stop"></v-btn>
+                            @click="snackbarStore.showInfoMessage('$vuetify.dataIterator.snackbar.stopped')"
+                            icon="mdi-stop"></v-btn>
                         <v-btn v-else-if="messageStore.conversation.length > 0" size="small" color="primary"
                             variant="elevated" @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
                         <v-btn v-else size="small" color="grey" variant="elevated" icon="mdi-arrow-up">
@@ -746,7 +749,8 @@
                                     </v-card-text>
                                 </div>
                                 <div v-else>
-                                    <md-preview :model-value="message.content" language="en-US" :code-foldable="true"
+                                    <md-preview :model-value="message.content"
+                                        :language="language == 'zhHans' ? 'zh-CN' : 'en-US'" :code-foldable="true"
                                         auto-fold-threshold="Infinity"></md-preview>
                                 </div>
                             </template>
@@ -797,7 +801,7 @@
         const { createVuetify } = Vuetify
         const { createPinia, defineStore, storeToRefs } = Pinia
         const { createI18n, useI18n } = VueI18n
-        const { en, sv, zhHans, zhHant } = 'vuetify/locale'
+        const { en, it, ja, sv, zhHans } = 'vuetify/locale'
 
         const TuuiImgDialog = {
             template: '#tuui-img-dialog-template',
@@ -829,7 +833,8 @@
             },
             props: {
                 messages: { type: Object, required: true },
-                size: { type: Number }
+                size: { type: Number },
+                language: { type: String }
             }
         };
 
@@ -1021,6 +1026,26 @@
                             }, timeout);
                         }
 
+                    },
+                });
+
+                const { locale } = useI18n({ useScope: 'global' });
+
+                const useLanguageStore = defineStore({
+                    id: "languageStore",
+                    state: () => ({
+
+                    }),
+                    getters: {
+                        getLocale: () => {
+                            return locale.value
+                        },
+
+                    },
+                    actions: {
+                        change(lang) {
+                            locale.value = lang;
+                        },
                     },
                 });
 
@@ -1327,6 +1352,7 @@
                 const messageStore = useMessageStore();
                 const historyStore = useHistoryStore();
                 const defaultChoiceStore = useDefaultChoiceStore();
+                const languageStore = useLanguageStore();
 
                 const createCompletion = async (conversation) => {
                     try {
@@ -1669,12 +1695,6 @@
                     settingStore.fontStatus = true
                 });
 
-                const { locale } = useI18n({ useScope: 'global' });
-
-                const changeLanguage = (lang) => {
-                    locale.value = lang;
-                };
-
                 return {
                     configFile,
 
@@ -1687,7 +1707,7 @@
                     chatbotStore,
                     historyStore,
 
-                    changeLanguage,
+                    languageStore,
 
                 };
             }
@@ -1724,6 +1744,63 @@
                             stopped: 'Generating stopped.',
                             parseStreamFail: 'Cannot read the stream.',
                             parseConfigFail: 'Cannot parse the config file.',
+                        }
+                    },
+                },
+            },
+            it: {
+                $vuetify: {
+                    ...it,
+                    dataIterator: {
+                        title: 'Layout della Query AI',
+                        q: { title: 'Cronologia delle Query' },
+                        i: {
+                            title: 'Configurazione dell\'interfaccia',
+                            apikey: 'Chiave API',
+                            endpoint: 'Endpoint',
+                            url: 'URL',
+                            path: 'Path',
+                            model: 'Modello',
+                            advanced: 'Configurazione Avanzata',
+                            method: 'HTTP Metodo',
+                            stream: 'Stream',
+                            maxTokensPrefix: 'Max Tokens Prefix',
+                            temperature: 'Temperature',
+                            topP: 'Top P',
+                            contentType: 'Tipo di Contenuto',
+                            authPrefix: 'Auth Prefix',
+                            configFile: 'File di Configurazione'
+                        },
+                        snackbar: {
+                            addnew: 'Aggiunta nuova sessione.',
+                            addfail: 'Già in una nuova sessione.',
+                            stopped: 'Generazione interrotta.',
+                            parseStreamFail: 'Impossibile leggere il flusso.',
+                            parseConfigFail: 'Impossibile analizzare il file di configurazione.',
+                        }
+                    },
+                },
+            },
+            ja: {
+                $vuetify: {
+                    ...ja,
+                    dataIterator: {
+                        title: 'AI お問い合わせ',
+                        q: { title: '歴史' },
+                        i: {
+                            title: 'インターフェイス構成',
+                            apikey: 'API キー',
+                            endpoint: '端点',
+                            contentType: 'コンテンツタイプ',
+                            authPrefix: 'リクエストヘッダー',
+                            configFile: 'プロファイル'
+                        },
+                        snackbar: {
+                            addnew: '新しいセッションが追加されました',
+                            addfail: 'すでに最新のセッションに参加しています',
+                            stopped: 'ビルドを停止します',
+                            parseStreamFail: 'データフローを解決できませんでした',
+                            parseConfigFail: '設定ファイルを解決できません',
                         }
                     },
                 },
