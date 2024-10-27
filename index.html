@@ -54,7 +54,7 @@
 
     <!-- Vue i18n -->
     <script src="https://cdn.aiql.com/npm/vue-i18n/dist/vue-i18n.global.prod.min.js"></script>
-    <script src="https://cdn.aiql.com/npm/iconify-icon@2.1.0/dist/iconify-icon.min.js"></script>
+    <script src="https://cdn.aiql.com/npm/iconify-icon/dist/iconify-icon.min.js"></script>
 
     <!-- Pinia -->
     <script src="https://cdn.aiql.com/npm/vue-demi/lib/index.iife.min.js"></script>
@@ -290,7 +290,8 @@
             <div class="input-area">
                 <v-col class="input-config">
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated" icon
+                        <v-btn :size=settingStore.avatarSize class="left-icon"
+                            :color="messageStore.conversation.length > 0 ? 'primary': 'grey'" variant="elevated" icon
                             @click="messageStore.init()">
                             <v-icon v-if="settingStore.fontStatus">mdi-alpha-a-circle</v-icon>
                             <div class="text-caption" v-else>A</div>
@@ -304,36 +305,39 @@
                         </v-btn>
                     </v-row>
                     <v-row>
-                        <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated" icon
-                            @click="settingStore.configHistory = true">
-                            <v-icon v-if="settingStore.fontStatus">mdi-alpha-q-circle</v-icon>
-                            <div class="text-caption" v-else>Q</div>
-                        </v-btn>
+                        <v-badge :content="historyStore.conversation.length" color="info" max="99" location='top left'>
+                            <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated"
+                                icon @click="settingStore.configHistory = true">
+                                <v-icon v-if="settingStore.fontStatus">mdi-alpha-q-circle</v-icon>
+                                <div class="text-caption" v-else>Q</div>
+                            </v-btn>
+                        </v-badge>
                     </v-row>
                     <v-row>
-                        <v-menu transition="fade-transition">
-                            <template v-slot:activator="{ props }">
-                                <v-btn :size=settingStore.avatarSize class="left-icon mb-6" color="primary"
-                                    variant="elevated" icon v-bind="props">
-                                    <v-icon v-if="settingStore.fontStatus">mdi-alpha-l-circle</v-icon>
-                                    <div class="text-caption" v-else>Q</div>
-                                </v-btn>
+                        <v-badge color="transparent" location='top left'>
+                            <template v-slot:badge>
+                                <iconify-icon :icon="languageStore.getIcon2()"></iconify-icon>
                             </template>
-                            <v-list class='mb-2'>
-                                <v-list-item v-for="n in
-                                [{title: 'English', value: 'en', name: 'united-states'},
-                                {title: 'Italiano', value: 'it', name: 'italy'},
-                                {title: '日本語', value: 'ja', name: 'japan'},
-                                {title: 'Svenska', value: 'sv', name: 'sweden'},
-                                {title: '简体中文', value: 'zhHans', name: 'china'}
-                                ]" :key="n.value" @click="languageStore.change(n.value)" density="compact">
-                                    <template v-slot:prepend>
-                                        <iconify-icon class='mr-3' :icon="`twemoji:flag-${n.name}`"></iconify-icon>
-                                    </template>
-                                    <v-list-item-title v-text="n.title"></v-list-item-title>
-                                </v-list-item>
-                            </v-list>
-                        </v-menu>
+                            <v-menu transition="fade-transition">
+                                <template v-slot:activator="{ props }">
+                                    <v-btn :size=settingStore.avatarSize class="left-icon mb-6" color="primary"
+                                        variant="elevated" icon v-bind="props">
+                                        <v-icon v-if="settingStore.fontStatus">mdi-alpha-l-circle</v-icon>
+                                        <div class="text-caption" v-else>Q</div>
+                                    </v-btn>
+                                </template>
+                                <v-list class='mb-2'>
+                                    <v-list-item v-for="n in languageStore.list" :key="n.value"
+                                        @click="languageStore.change(n.value)" density="compact">
+                                        <template v-slot:prepend>
+                                            <iconify-icon class='mr-3'
+                                                :icon="languageStore.getIcon(n.name)"></iconify-icon>
+                                        </template>
+                                        <v-list-item-title v-text="n.title"></v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </v-badge>
                     </v-row>
                 </v-col>
 
@@ -345,7 +349,7 @@
                                 <v-file-input accept="image/*" hide-input v-model="messageStore.images"
                                     prepend-icon="mdi-plus-circle-outline"></v-file-input>
                             </v-div>
-                            <v-btn class='ma-2' size="21" icon="$error" @click="messageStore.clear()">
+                            <v-btn class='ma-2' size="22" icon="$error" @click="messageStore.clear()">
                             </v-btn>
                         </v-row>
                         <v-row>
@@ -1034,18 +1038,30 @@
                 const useLanguageStore = defineStore({
                     id: "languageStore",
                     state: () => ({
-
+                        list: [{ title: 'English', value: 'en', name: 'united-states' },
+                        { title: 'Italiano', value: 'it', name: 'italy' },
+                        { title: '日本語', value: 'ja', name: 'japan' },
+                        { title: 'Svenska', value: 'sv', name: 'sweden' },
+                        { title: '简体中文', value: 'zhHans', name: 'china' }
+                        ]
                     }),
                     getters: {
                         getLocale: () => {
                             return locale.value
                         },
-
                     },
                     actions: {
                         change(lang) {
                             locale.value = lang;
                         },
+                        getIcon(name) {
+                            return `twemoji:flag-${name}`
+                        },
+                        getIcon2() {
+                            const value = this.getLocale
+                            const item = this.list.find(lang => lang.value === value);
+                            return `twemoji:flag-${item.name}`
+                        }
                     },
                 });
 
