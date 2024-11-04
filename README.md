@@ -66,7 +66,10 @@ python3 -m http.server 8000
 docker run -p 8080:8080 -d aiql/chat-ui
 ```
 
-#### Option 6: Deploy within [K8s](#k8s-section)
+#### Option 6: Deploy within [Huggingface](https://huggingface.co/spaces/AI-QL/chat-ui)
+> Don't forget add `app_port: 8080` in `README.md`
+
+#### Option 7: Deploy within [K8s](#k8s-section)
 
 
 ## How to config
