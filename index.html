@@ -379,8 +379,7 @@
                             @click="messageStore.sendMessage" icon="mdi-arrow-up">
                         </v-btn>
                         <v-btn v-else-if="messageStore.generating" size="small" color="primary" variant="elevated"
-                            @click="messageStore.stop"
-                            icon="mdi-stop"></v-btn>
+                            @click="messageStore.stop" icon="mdi-stop"></v-btn>
                         <v-btn v-else-if="messageStore.conversation.length > 0" size="small" color="primary"
                             variant="elevated" @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
                         <v-btn v-else size="small" color="grey" variant="elevated" icon="mdi-arrow-up">
@@ -764,18 +763,13 @@
                         </v-avatar>
                         <tuui-chat-card :index="index" :messages="messages" :show-content="true">
                             <template v-slot:default="{ showcontent }">
-                                <div v-if="showcontent">
-                                    <v-card-text class="md-preview pt-1">
-                                        <v-textarea class="conversation-area" variant="plain" density='compact'
-                                            auto-grow hide-details rows="1" readonly
-                                            v-model="message.content"></v-textarea>
-                                    </v-card-text>
-                                </div>
-                                <div v-else>
-                                    <md-preview :model-value="message.content" class="md-preview"
-                                        :language="language == 'zhHans' ? 'zh-CN' : 'en-US'" :code-foldable="true"
-                                        auto-fold-threshold="Infinity"></md-preview>
-                                </div>
+                                <v-card-text v-if="showcontent" class="md-preview pt-1">
+                                    <v-textarea class="conversation-area" variant="plain" density='compact' auto-grow
+                                        hide-details rows="1" readonly v-model="message.content"></v-textarea>
+                                </v-card-text>
+                                <md-preview v-else :model-value="message.content" class="md-preview"
+                                    :language="language == 'zhHans' ? 'zh-CN' : 'en-US'" :code-foldable="true"
+                                    auto-fold-threshold="Infinity"></md-preview>
                             </template>
                         </tuui-chat-card>
                     </div>
@@ -1176,7 +1170,7 @@
                             }
                         },
                         stop() {
-                            this.generating = false,
+                            this.generating = false;
                             snackbarStore.showInfoMessage('$vuetify.dataIterator.snackbar.stopped')
                         },
                         clear() {
@@ -1409,7 +1403,7 @@
                 });
 
                 const chatbotStore = useChatbotStore();
-                
+
                 const settingStore = useSettingStore();
                 const agentStore = useAgentStore();
                 const messageStore = useMessageStore();
@@ -1486,9 +1480,11 @@
                         let buffer = ''
 
                         // Read the stream
-                        read(reader, messageStore.conversation[messageStore.conversation.length - 1], buffer, chatbotStore.stream);
+                        await read(reader, messageStore.conversation[messageStore.conversation.length - 1], buffer, chatbotStore.stream);
                     } catch (error) {
                         snackbarStore.showErrorMessage(error.message);
+                    } finally {
+                        messageStore.generating = false
                     }
                 };
 
@@ -1585,9 +1581,9 @@
                     }
                 };
 
-                watch(computed(() => messageStore.conversation),
+                watch(computed(() => messageStore.conversation[messageStore.conversation.length - 1]?.content),
                     (newValue, oldValue) => {
-                        if (newValue[newValue.length - 1] !== oldValue[oldValue.length - 1]) {
+                        if (newValue !== oldValue) {
                             asyncScrollToBottom();
                         }
                     }, { deep: true });
