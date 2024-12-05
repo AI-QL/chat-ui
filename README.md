@@ -38,6 +38,8 @@ By simplifying the structure and key functions, developers can quickly set up an
 
 - Support the `download of chat history`, interrupt the current generation, and repeat the previous generation to quickly test the backend inference capabilities
 
+- Support `MCP (Model Context Protocol)` by acting as a renderer and facilitating community interactions with the backend main process via IPC
+
 - Inquiries with image inputs can be made using `multimodal vision models`
 
 - Support for toggling between `original format` and `Markdown format` display
@@ -59,7 +61,7 @@ python3 -m http.server 8000
 > Then, open your browser and access `http://localhost:8000`
 
 #### Option 4: fork this repo and link it to [Cloudflare pages](https://developers.cloudflare.com/pages)
-- demo https://www2.aiql.com
+> Demo https://www2.aiql.com
 
 #### Option 5: Deploy your own Chatbot by [Docker](https://hub.docker.com/repository/docker/aiql/chat-ui/tags?page=1&ordering=last_updated)
 ```shell
@@ -71,6 +73,8 @@ docker run -p 8080:8080 -d aiql/chat-ui
 
 #### Option 7: Deploy within [K8s](#k8s-section)
 
+#### Option 8: Integrated as a renderer within the desktop application
+> Demo: [Chat-MCP](https://github.com/AI-QL/chat-mcp)
 
 ## How to config
 
