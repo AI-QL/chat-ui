@@ -882,15 +882,23 @@
             state: () => ({
             }),
 
+            getters: {
+                getServers: () => {
+                    return window.mcpServers
+                },
+
+            },
+
             actions: {
                 listTools: async function (resourceName) {
-                    if (!window.mcp) {
+                    const mcpServers = this.getServers
+                    if (!mcpServers) {
                         return null
                     }
-                    const mcpKeys = Object.keys(window.mcp)
+                    const mcpKeys = Object.keys(mcpServers)
                     const mcpTools = []
                     await Promise.all(mcpKeys.map(async (key) => {
-                        const tools = await window.mcp[key].list();
+                        const tools = await mcpServers[key].list();
                         for (const tool of tools.tools) {
                             mcpTools.push({
                                 type: 'function',
@@ -906,18 +914,21 @@
                     return mcpTools
                 },
                 getTool: async function (tool_name) {
-                    const mcpKeys = Object.keys(window.mcp)
-                    const result = await Promise.race(mcpKeys.map(async (key) => {
-                        const tools = await window.mcp[key].list();
+                    const mcpServers = this.getServers
+                    const mcpKeys = Object.keys(mcpServers)
+                    const result = await Promise.any(mcpKeys.map(async (key) => {
+                        const tools = await mcpServers[key].list();
                         const foundTool = tools.tools.find(tool => tool.name === tool_name);
                         if (foundTool) {
                             return {
                                 server: key,
                                 tool: foundTool
-                            }
+                            };
                         }
+                        throw new Error(`Tool ${tool_name} not found on server ${key}`);
                     }));
-                    return result
+
+                    return result;
                 },
                 callTool: async function (tool_name, tool_args) {
                     const tool = await this.getTool(tool_name)
@@ -938,7 +949,7 @@
                         arguments: tool_arguments
                     }
 
-                    const result = await window.mcp[tool.server].call(params)
+                    const result = await this.getServers[tool.server].call(params)
                     return result
                 },
                 packReturn: (string) => {
@@ -1963,6 +1974,7 @@
                 };
 
                 const resizeAvatar = () => {
+                    // console.log(window.innerWidth)
                     if (window.innerWidth <= 1310) {
                         settingStore.avatarSize = 26
                     } else {
