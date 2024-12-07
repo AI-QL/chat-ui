@@ -1,26 +1,10 @@
 # Chat UI
 
-<p align="left">
-  <a href="https://vuejs.org/">
-    <img src="https://img.shields.io/badge/Vue3-brightgreen.svg" alt="vue">
-  </a>
-  &nbsp
-  <a href="https://vuetifyjs.com/">
-    <img src="https://img.shields.io/badge/Vuetify-blue.svg" alt="element-ui">
-  </a>
-  &nbsp
-  <a>
-    <img src="https://img.shields.io/badge/HTML-red.svg">
-  </a>
-  &nbsp
-  <a href="https://hub.docker.com/repository/docker/aiql/chat-ui/tags?page=1&ordering=last_updated">
-    <img src="https://img.shields.io/badge/Docker-lightskyblue.svg">
-  </a>
-  &nbsp
-  <a href="https://github.com/AI-QL/chat-ui/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/AI-QL/chat-ui" alt="license">
-  </a>
-</p>
+[![](https://img.shields.io/badge/Vue3-brightgreen.svg)](https://vuejs.org)
+[![](https://img.shields.io/badge/Vuetify-blue.svg)](https://vuetifyjs.com)
+![](https://img.shields.io/badge/HTML-red.svg)
+[![Docker Pulls](https://img.shields.io/docker/pulls/aiql/chat-ui.svg)](https://hub.docker.com/repository/docker/aiql/chat-ui/tags?page=1&ordering=last_updated)
+[![LICENSE](https://img.shields.io/github/license/AI-QL/chat-ui)](https://github.com/AI-QL/chat-ui/blob/main/LICENSE)
 
 The UI of Chat is becoming increasingly complex, often encompassing an entire front-end project along with deployment solutions.
 
@@ -48,8 +32,12 @@ By simplifying the structure and key functions, developers can quickly set up an
 
 ## How to use
 
-#### Option 1: Goto demo [AIQL](https://chat.aiql.com/)
-> The demo will use `Llama-3.2` by default, image upload is only supported for vision models
+#### Option 1: Chat with demo [AIQL](https://chat.aiql.com/)
+> The demo will use `Llama-3.3-70B-Instruct` by default
+
+> Multimodal image upload is only supported for vision models
+
+> MCP tools call necessitates a desktop backend and LLM support in OpenAI format, referencing [Chat-MCP](https://github.com/AI-QL/chat-mcp)
 
 #### Option 2: Download [Index](./index.html) and open it locally (recommended)
 
@@ -61,7 +49,7 @@ python3 -m http.server 8000
 > Then, open your browser and access `http://localhost:8000`
 
 #### Option 4: fork this repo and link it to [Cloudflare pages](https://developers.cloudflare.com/pages)
-> Demo https://www2.aiql.com
+> Demo: https://www2.aiql.com
 
 #### Option 5: Deploy your own Chatbot by [Docker](https://hub.docker.com/repository/docker/aiql/chat-ui/tags?page=1&ordering=last_updated)
 ```shell
@@ -104,57 +92,60 @@ If you're experiencing issues opening the page and a simple refresh isn't resolv
 ## K8s
 
 1. Introduce the image as sidecar container
-```yaml
-spec:
-  template:
-    metadata:
-       labels:
-         app: my-app
+
+    ```yaml
     spec:
-      containers:
-      - name: chat-ui
-        image: aiql/chat-ui
-        ports:
-        - containerPort: 8080
-```
+      template:
+        metadata:
+          labels:
+            app: my-app
+        spec:
+          containers:
+          - name: chat-ui
+            image: aiql/chat-ui
+            ports:
+            - containerPort: 8080
+    ```
 
 2. Add service
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: chat-ui-service
-spec:
-  selector:
-    app: my-app
-  ports:
-  - protocol: TCP
-    port: 8080
-    targetPort: 8080
-  type: LoadBalancer
-```
+
+    ```yaml
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: chat-ui-service
+    spec:
+      selector:
+        app: my-app
+      ports:
+      - protocol: TCP
+        port: 8080
+        targetPort: 8080
+      type: LoadBalancer
+    ```
 
 3. You can access the port or add other ingress
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-spec:
-  rules:
-  - host: chat-ui.example.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: chat-ui-service
-            port:
-              number: 8080
-```
+
+    ```yaml
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: my-app-ingress
+      annotations:
+        nginx.ingress.kubernetes.io/rewrite-target: /$1
+    spec:
+      rules:
+      - host: chat-ui.example.com
+        http:
+          paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: chat-ui-service
+                port:
+                  number: 8080
+    ```
 
 ## Demo
 ![](./demo.gif)
