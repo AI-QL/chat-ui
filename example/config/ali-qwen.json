@@ -1,0 +1,16 @@
+{
+    "chatbotStore": {
+        "apiKey": "",
+        "url": "https://dashscope.aliyuncs.com/compatible-mode",
+        "path": "/v1/chat/completions",
+        "model": "qwen-turbo",
+        "max_tokens_value": ""
+    },
+    "defaultChoiceStore": {
+        "model": [
+            "qwen-turbo",
+            "qwen-plus",
+            "qwen-max"
+        ]
+    }
+}
