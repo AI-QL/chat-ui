@@ -244,7 +244,7 @@
         }
 
         .list-group {
-            min-height: calc(100% - 38px);
+            height: calc(100% - 38px);
             /* background-color: lightblue; */
         }
 
@@ -634,7 +634,7 @@
                                 </div>
 
                                 <!-- add new card form -->
-                                <v-card v-show="column.isAddVisible" class="pa-5">
+                                <v-card v-show="column.isAddVisible" class="pa-5 mb-4">
                                     <v-text-field color="primary" v-model="column.addTitle" label="Title"
                                         variant="underlined" hideDetails autofocus
                                         @keyup.enter="agentStore.addCard(column)"
@@ -642,6 +642,7 @@
                                     <div class="mt-3 d-flex flex-md-row flex-column">
                                         <v-btn class="flex-fill ma-1" size="small"
                                             @click="column.isAddVisible = !column.isAddVisible">Cancel</v-btn>
+                                        <v-spacer></v-spacer>
                                         <v-btn class="flex-fill ma-1" size="small" color="primary"
                                             @click="agentStore.addCard(column)">Add</v-btn>
                                     </div>
@@ -652,7 +653,7 @@
                                     :class="{'list-group': !column.isAddVisible}" @change="column.callback"
                                     item-key="id">
                                     <template #item="{ element, index }">
-                                        <v-card @click="agentStore.editCard(element)" class="pa-4 mt-4 ">
+                                        <v-card @click="agentStore.editCard(element)" class="pa-4 mb-4">
                                             <div class="d-flex align-start font-weight-bold text-title">
                                                 <span class="flex-fill">{{ element.title }}</span>
                                                 <v-btn size="small" variant="text" icon="mdi-delete-outline" rounded
@@ -665,16 +666,26 @@
                                 </vuedraggable>
                             </v-col>
                         </v-row>
+                        <v-row v-if="mcpStore.getServers" class="ma-1">
+                            <v-col>
+                                <h5 class="font-weight-bold mb-4">MCP</h5>
+                                <v-divider></v-divider>
+                                <v-data-table-server hide-default-footer hide-default-header hide-no-data disable-sort
+                                    v-if="mcpStore.getServers" :items="mcpStore.serverTools"
+                                    @update:options="mcpStore.loadTools" :loading="mcpStore.loading"></v-data-table-server>
+                            </v-col>
+                        </v-row>
+
                     </v-container>
                 </v-card>
             </v-dialog>
 
-            <v-dialog v-model="settingStore.editDialog" class="dialog-card">
+            <v-dialog v-model="agentStore.editDialog" class="dialog-card">
                 <v-card>
                     <v-card-title class="pa-4 d-flex align-center">
                         <span class="flex-fill">Edit Card</span>
                         <v-btn variant="text" rounded icon="mdi-close" size="small" color="primary"
-                            @click="settingStore.editDialog = false">
+                            @click="agentStore.editDialog = false">
                         </v-btn>
                     </v-card-title>
                     <v-divider></v-divider>
@@ -695,7 +706,7 @@
                             v-model="agentStore.card.refFile" label="Reference File" accept=".docx, .md, .txt"
                             single-line></v-file-input>
                         <v-spacer></v-spacer>
-                        <v-btn variant="outlined" @click="settingStore.editDialog = false">Cancel</v-btn>
+                        <v-btn variant="outlined" @click="agentStore.editDialog = false">Cancel</v-btn>
                         <v-btn class="ml-5" variant="flat" color="primary" @click="agentStore.saveCard()">Save</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -713,7 +724,7 @@
                 <!-- ---------------------------------------------- -->
                 <!-- Reset -->
                 <!-- ---------------------------------------------- -->
-                <v-btn @click="settingStore.resetAll" variant="text" size="45">
+                <v-btn @click="resetALL()" variant="text" size="45">
                     <v-icon size="25" color="error">mdi-store-remove</v-icon>
                     <v-tooltip activator="parent" location="left" text="Reset All Config"></v-tooltip>
                 </v-btn>
@@ -880,6 +891,8 @@
         const useMcpStore = defineStore({
             id: "mcpStore",
             state: () => ({
+                serverTools: [],
+                loading: true,
             }),
 
             getters: {
@@ -890,7 +903,27 @@
             },
 
             actions: {
-                listTools: async function (resourceName) {
+                loadTools: function () {
+                    this.loading = true
+                    try {
+                        this.listTools().then((tools) => {
+                            this.serverTools = tools.map(tool => {
+                                return {
+                                    name: tool.function.name,
+                                    description: tool.function.description
+                                }
+                            }
+                            )
+                            return
+                        })
+                    } catch (error) {
+                        console.error('Failed to load tools:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+
+                },
+                listTools: async function () {
                     const mcpServers = this.getServers
                     if (!mcpServers) {
                         return null
@@ -960,6 +993,177 @@
                         }]
                     }
                 }
+            },
+        });
+
+        const useAgentStore = defineStore({
+            id: "agentStore",
+            state: () => ({
+                card: null,
+                columns: [],
+                editDialog: false,
+            }),
+
+            persist: {
+                enabled: true,
+                strategies: [{ storage: sessionStorage }],
+            },
+
+            getters: {
+                getDragOption: () => {
+                    return {
+                        animation: 200,
+                        group: "task",
+                        disabled: false,
+                        ghostClass: "ghost",
+                    };
+                },
+
+            },
+
+            actions: {
+                addCard(column) {
+                    const { addTitle, key } = column;
+                    if (!addTitle) return;
+                    let newCard = {
+                        id: "_" + Math.random().toString(36).substring(2, 11),
+                        state: key,
+                        title: addTitle,
+                        description: "",
+                        refFile: null,
+                        refText: "",
+                        order: -1,
+                    };
+                    column.cards.unshift(newCard);
+                    column.addTitle = "";
+                    column.isAddVisible = false;
+                },
+                deleteCard(column, index) {
+                    column.cards.splice(index, 1);
+                },
+                editCard(card) {
+                    this.card = { ...card }
+                    this.editDialog = true;
+                },
+                saveCard() {
+                    const editCard = this.card
+                    if (editCard) {
+                        let foundCard = this.columns
+                            .flatMap(column => column.cards)
+                            .find(card => card.id === this.card.id);
+                        if (foundCard) {
+                            foundCard.title = editCard.title;
+                            foundCard.refText = editCard.refText
+                            foundCard.refFile = editCard.refFile
+                            foundCard.description = editCard.description;
+                            this.editDialog = false;
+                        }
+                    }
+
+                },
+                promptMessage(conversation) {
+
+                    const result = this.columns[0].cards
+                        .filter(
+                            (item) => {
+                                return item.description !== "" || item.refText !== "";
+                            }
+                        )
+                        .map(item => (
+                            item.refText ? `${item.description}\n###\n${item.refText}\n###` : item.description
+                        ))
+                        .join('\n\n');
+
+                    if (result) {
+                        return [{ content: result, role: "system" }, ...conversation]
+                    } else {
+                        return [...conversation]
+                    }
+                    return [...conversation]
+
+                },
+                initAgent() {
+                    this.$reset();
+                    const states = ref(["PROMPT", "BACKUP"]);
+                    const changeState = (e, colIndex) => {
+                        console.log(e)
+                        if (e.added || e.moved) {
+                            const column = this.columns[colIndex];
+                            const state = column.key;
+                            for (let i = 0; i < column.cards.length; i++) {
+                                column.cards[i].order = i;
+                                column.cards[i].state = state;
+                            }
+                        }
+                    };
+
+                    states.value.forEach((state, index) => {
+                        this.columns.push({
+                            key: state,
+                            cards: [],
+                            isAddVisible: false,
+                            callback: (e) => changeState(e, index),
+                        });
+                    });
+
+                    this.parseCards([
+                        {
+                            id: 1,
+                            title: "Prompt 1",
+                            description: "",
+                            state: "PROMPT",
+                        },
+                        // {
+                        //     id: 2,
+                        //     title: "Agent 1",
+                        //     description: "TODO",
+                        //     state: "BACKUP",
+                        // },
+
+                    ])
+
+                },
+
+                parseCards(cards) {
+                    if (!cards) return this.columns.map((column) => (column.cards = []));
+
+                    this.columns.forEach((column) => {
+                        column.cards = cards
+                            .filter((card) => card.state === column.key)
+                            .sort((a, b) => (a.order < b.order ? -1 : 0));
+                    });
+                },
+
+            },
+
+        });
+
+        const useSettingStore = defineStore({
+            id: "settingStore",
+            state: () => ({
+                inputRow: 1,
+                avatarSize: 24,
+                configDialog: false,
+                configHistory: false,
+
+                agentDialog: false,
+
+                apiKeyShow: false,
+
+                toolboxShow: false,
+                fontStatus: false,
+            }),
+            actions: {
+                initDialog() {
+                    this.apiKeyShow = false; // hide api key
+                    this.configDialog = true;
+                },
+                setInputRow(int, timeout) {
+                    setTimeout(() => {
+                        this.inputRow = int
+                    }, timeout);
+                }
+
             },
         });
 
@@ -1119,190 +1323,8 @@
 
                 const snackbarStore = useSnackbarStore();
                 const mcpStore = useMcpStore();
-
-                const useAgentStore = defineStore({
-                    id: "agentStore",
-                    state: () => ({
-                        card: null,
-                        columns: [],
-                    }),
-
-                    persist: {
-                        enabled: true,
-                        strategies: [{ storage: sessionStorage }],
-                    },
-
-                    getters: {
-                        getDragOption: () => {
-                            return {
-                                animation: 200,
-                                group: "task",
-                                disabled: false,
-                                ghostClass: "ghost",
-                            };
-                        },
-
-                    },
-
-                    actions: {
-                        addCard(column) {
-                            const { addTitle, key } = column;
-                            if (!addTitle) return;
-                            let newCard = {
-                                id: "_" + Math.random().toString(36).substring(2, 11),
-                                state: key,
-                                title: addTitle,
-                                description: "",
-                                refFile: null,
-                                refText: "",
-                                order: -1,
-                            };
-                            column.cards.unshift(newCard);
-                            column.addTitle = "";
-                            column.isAddVisible = false;
-                        },
-                        deleteCard(column, index) {
-                            column.cards.splice(index, 1);
-                        },
-                        editCard(card) {
-                            agentStore.card = { ...card }
-                            settingStore.editDialog = true;
-                        },
-                        saveCard() {
-                            const editCard = this.card
-                            if (editCard) {
-                                let foundCard = this.columns
-                                    .flatMap(column => column.cards)
-                                    .find(card => card.id === this.card.id);
-                                if (foundCard) {
-                                    foundCard.title = editCard.title;
-                                    foundCard.refText = editCard.refText
-                                    foundCard.refFile = editCard.refFile
-                                    foundCard.description = editCard.description;
-                                    settingStore.editDialog = false;
-                                }
-                            }
-
-                        },
-                        promptMessage(conversation) {
-
-                            const result = this.columns[0].cards
-                                .filter(
-                                    (item) => {
-                                        return item.description !== "" || item.refText !== "";
-                                    }
-                                )
-                                .map(item => (
-                                    {
-                                        content: item.refText ? `${item.description}\n\nContext:\n###\n${item.refText}\n###` : item.description,
-                                        role: "system"
-                                    }
-                                ));
-
-                            if (result[0]?.content) {
-                                return [...result, ...conversation]
-                            } else {
-                                return [...conversation]
-                            }
-                            return [...conversation]
-
-                        },
-                        initAgent() {
-                            this.$reset();
-                            const states = ref(["PROMPT", "AGENT1", "AGENT2"]);
-                            const changeState = (e, colIndex) => {
-                                console.log(e)
-                                if (e.added || e.moved) {
-                                    const column = this.columns[colIndex];
-                                    const state = column.key;
-                                    for (let i = 0; i < column.cards.length; i++) {
-                                        column.cards[i].order = i;
-                                        column.cards[i].state = state;
-                                    }
-                                }
-                            };
-
-                            states.value.forEach((state, index) => {
-                                this.columns.push({
-                                    key: state,
-                                    cards: [],
-                                    isAddVisible: false,
-                                    callback: (e) => changeState(e, index),
-                                });
-                            });
-
-                            this.parseCards([
-                                {
-                                    id: 1,
-                                    title: "Prompt 1",
-                                    description: "",
-                                    state: "PROMPT",
-                                },
-                                {
-                                    id: 2,
-                                    title: "Agent 1",
-                                    description: "TODO",
-                                    state: "AGENT1",
-                                },
-                                {
-                                    id: 3,
-                                    title: "Agent 2",
-                                    description: "TODO",
-                                    state: "AGENT2",
-                                },
-
-                            ])
-
-                        },
-
-                        parseCards(cards) {
-                            if (!cards) return this.columns.map((column) => (column.cards = []));
-
-                            this.columns.forEach((column) => {
-                                column.cards = cards
-                                    .filter((card) => card.state === column.key)
-                                    .sort((a, b) => (a.order < b.order ? -1 : 0));
-                            });
-                        },
-
-                    },
-
-                });
-
-                const useSettingStore = defineStore({
-                    id: "settingStore",
-                    state: () => ({
-                        inputRow: 1,
-                        avatarSize: 24,
-                        configDialog: false,
-                        configHistory: false,
-
-                        agentDialog: false,
-                        editDialog: false,
-
-                        apiKeyShow: false,
-
-                        toolboxShow: false,
-                        fontStatus: false,
-                    }),
-                    actions: {
-                        initDialog() {
-                            this.apiKeyShow = false; // hide api key
-                            this.configDialog = true;
-                        },
-                        resetAll() {
-                            historyStore.resetState()
-                            chatbotStore.resetState()
-                            defaultChoiceStore.resetState()
-                        },
-                        setInputRow(int, timeout) {
-                            setTimeout(() => {
-                                this.inputRow = int
-                            }, timeout);
-                        }
-
-                    },
-                });
+                const agentStore = useAgentStore();
+                const settingStore = useSettingStore();
 
                 const { locale } = useI18n({ useScope: 'global' });
 
@@ -1637,9 +1659,6 @@
                 });
 
                 const chatbotStore = useChatbotStore();
-
-                const settingStore = useSettingStore();
-                const agentStore = useAgentStore();
                 const messageStore = useMessageStore();
                 const historyStore = useHistoryStore();
                 const defaultChoiceStore = useDefaultChoiceStore();
@@ -1692,8 +1711,6 @@
                             headers: headers,
                             method: chatbotStore.method,
                             body: JSON.stringify(body),
-                            // mode: 'cors',
-                            // redirect: 'follow',
                         };
 
                         const completion = await fetch(
@@ -1948,9 +1965,7 @@
 
                 onMounted(async () => {
                     initLottie();
-                    if (agentStore.columns.length === 0) {
-                        agentStore.initAgent();
-                    }
+                    agentStore.initAgent();
                     resizeAvatar()
                     window.onresize = () => resizeAvatar()
                     resizeInputBox()
@@ -2036,12 +2051,19 @@
                     settingStore.fontStatus = true
                 });
 
+                const resetALL = () => {
+                    historyStore.resetState()
+                    chatbotStore.resetState()
+                    defaultChoiceStore.resetState()
+                };
+
                 return {
                     configFile,
 
                     settingStore,
                     agentStore,
                     snackbarStore,
+                    mcpStore,
 
                     messageStore,
                     defaultChoiceStore,
@@ -2049,6 +2071,8 @@
                     historyStore,
 
                     languageStore,
+
+                    resetALL,
 
                 };
             }
