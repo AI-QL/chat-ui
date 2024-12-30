@@ -101,23 +101,15 @@
             max-height: calc(100% - 100px);
         }
 
-        .input-config {
-            width: auto;
-            position: fixed;
-            margin-left: 19px;
-            bottom: 0;
-            border-radius: 20px;
-            background-color: white;
-            flex: 1;
-        }
-
         .left-icon {
             margin-bottom: 0.8rem;
         }
 
         .input-area {
+            background-color: white;
             display: flex;
-            padding: 0 5px;
+            padding-inline: 21.5px;
+            margin-inline: 21.5px;
             width: 100%;
             position: fixed;
             left: 50%;
@@ -127,14 +119,14 @@
             .input-panel {
                 flex: 1;
                 border-top: 5px solid white;
-                max-width: 1200px;
+                max-width: 1280px;
                 border-radius: 5px;
                 margin: 0 auto;
             }
 
-            .input-box {
-                margin-left: 53px;
+            .input-box textarea {
                 margin-bottom: 1px;
+                overflow-y: hidden
             }
 
             .input-icon {
@@ -243,9 +235,13 @@
             background: #E3F2FD;
         }
 
-        .list-group {
+        .list-draggable {
             height: calc(100% - 38px);
             /* background-color: lightblue; */
+        }
+
+        .bgc {
+            background-color: lightblue;
         }
 
         @keyframes rotation {
@@ -293,42 +289,23 @@
                 <div class="fill-area"></div>
             </v-container>
             <div class="input-area">
-                <v-col class="input-config">
-                    <v-row>
-                        <v-btn :size=settingStore.avatarSize class="left-icon"
-                            :color="messageStore.conversation.length > 0 ? 'primary': 'grey'" variant="elevated" icon
-                            @click="messageStore.init()">
-                            <v-icon v-if="settingStore.fontStatus">mdi-alpha-a-circle</v-icon>
-                            <div class="text-caption" v-else>A</div>
+                <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
+                    <v-speed-dial location="bottom right" transition="expand-transition" offset="50">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <v-fab v-bind="activatorProps" size="small" icon="mdi-cog" absolute
+                                class="input-icon"></v-fab>
+                        </template>
+                        <v-btn key="4" variant="elevated" icon @click="settingStore.initDialog">
+                            <v-icon>mdi-api</v-icon>
                         </v-btn>
-                    </v-row>
-                    <v-row>
-                        <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated" icon
-                            @click="settingStore.initDialog">
-                            <v-icon v-if="settingStore.fontStatus">mdi-alpha-i-circle</v-icon>
-                            <div class="text-caption" v-else>I</div>
-                        </v-btn>
-                    </v-row>
-                    <v-row>
-                        <v-badge :content="historyStore.conversation.length" color="info" max="99" location='top left'>
-                            <v-btn :size=settingStore.avatarSize class="left-icon" color="primary" variant="elevated"
-                                icon @click="settingStore.configHistory = true">
-                                <v-icon v-if="settingStore.fontStatus">mdi-alpha-q-circle</v-icon>
-                                <div class="text-caption" v-else>Q</div>
-                            </v-btn>
-                        </v-badge>
-                    </v-row>
-                    <v-row>
-                        <v-badge color="transparent" location='top left'>
+                        <v-badge key="3" color="transparent" location='top left'>
                             <template v-slot:badge>
                                 <iconify-icon :icon="languageStore.getIcon2()"></iconify-icon>
                             </template>
                             <v-menu transition="fade-transition">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn :size=settingStore.avatarSize class="left-icon mb-6" color="primary"
-                                        variant="elevated" icon v-bind="props">
-                                        <v-icon v-if="settingStore.fontStatus">mdi-alpha-l-circle</v-icon>
-                                        <div class="text-caption" v-else>Q</div>
+                                    <v-btn variant="elevated" icon v-bind="props">
+                                        <v-icon>mdi-translate</v-icon>
                                     </v-btn>
                                 </template>
                                 <v-list class='mb-2'>
@@ -343,28 +320,29 @@
                                 </v-list>
                             </v-menu>
                         </v-badge>
-                    </v-row>
-                </v-col>
-
-                <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
+                        <v-badge key="2" :content="historyStore.conversation.length" color="info" max="99"
+                            location='top left'>
+                            <v-btn variant="elevated" icon @click="settingStore.configHistory = true">
+                                <v-icon>mdi-list-box</v-icon>
+                            </v-btn>
+                        </v-badge>
+                    </v-speed-dial>
                     <v-container>
                         <v-row>
-                            <v-spacer></v-spacer>
-                            <v-div class='ma-2'>
-                                <v-file-input accept="image/*" hide-input v-model="messageStore.images"
-                                    prepend-icon="mdi-plus-circle-outline"></v-file-input>
-                            </v-div>
-                            <v-btn class='ma-2' size="22" icon="$error" @click="messageStore.clear()">
-                            </v-btn>
-                        </v-row>
-                        <v-row>
                             <v-textarea class="input-box" dirty color="primary" type="text" variant="solo" counter
-                                @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage" :label=""
-                                @focus="settingStore.setInputRow(2,0)" @blur="settingStore.setInputRow(1,150)"
+                                clearable @keydown="messageStore.handleKeydown" v-model="messageStore.userMessage"
+                                :label="" @focus="settingStore.setInputRow(2,0)" @blur="settingStore.setInputRow(1,150)"
                                 :rows="settingStore.inputRow" auto-grow max-rows="15">
                                 <template v-slot:prepend-inner>
-                                    <v-img v-show=messageStore.base64 class="chat-images" :src="messageStore.base64"
-                                        @click="messageStore.images=[]"></v-img>
+                                    <v-container>
+                                        <v-row>
+                                            <v-img v-if="messageStore.base64" class="chat-images mt-1"
+                                                :src="messageStore.base64" @click="messageStore.images=[]"></v-img>
+                                            <v-file-input v-else @click.stop accept="image/*" hide-input
+                                                v-model="messageStore.images"
+                                                prepend-icon="mdi-plus-circle-outline"></v-file-input>
+                                        </v-row>
+                                    </v-container>
                                 </template>
                             </v-textarea>
                         </v-row>
@@ -375,9 +353,22 @@
                         </v-btn>
                         <v-btn v-else-if="messageStore.generating" size="small" color="primary" variant="elevated"
                             @click="messageStore.stop" icon="mdi-stop"></v-btn>
-                        <v-btn v-else-if="messageStore.conversation.length > 0" size="small" color="primary"
-                            variant="elevated" @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
-                        <v-btn v-else size="small" color="grey" variant="elevated" icon="mdi-arrow-up">
+                        <v-speed-dial v-else-if="messageStore.conversation.length > 0" location="bottom center"
+                            transition="expand-transition">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <v-btn v-bind="activatorProps" size="small" icon="mdi-dots-horizontal"
+                                    color="primary"></v-btn>
+                            </template>
+                            <v-btn key="2" size="small" color="primary" variant="elevated"
+                                @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
+                            </v-btn>
+                            <v-btn key="1" color="primary" variant="elevated" icon @click="messageStore.init()">
+                                <v-icon>mdi-pencil-plus</v-icon>
+                            </v-btn>
+                        </v-speed-dial>
+                        <v-btn v-else size="small" :color="mcpStore.getServers ? 'primary': 'grey'" variant="elevated"
+                            @click="mcpStore.getServers ? promptStore.promptDialog = true : false"
+                            icon="mdi-account-edit">
                         </v-btn>
 
                     </div>
@@ -611,6 +602,61 @@
                     </v-card-text>
                 </v-card>
             </v-dialog>
+            <v-dialog v-model="promptStore.promptDialog" class="dialog-card">
+                <v-card prepend-icon="mdi-account-cog" :title="$t('$vuetify.dataIterator.p.title')">
+                    <v-data-iterator :items="promptStore.promptList" :search="promptStore.search"
+                        @update:options="promptStore.loadPrompts" :loading="promptStore.loading">
+                        <template v-slot:header>
+                            <v-toolbar class="px-2">
+                                <v-text-field v-model="promptStore.search" density="comfortable" placeholder="Search"
+                                    prepend-inner-icon="mdi-magnify" width="100vw" max-width="400px" variant="solo"
+                                    clearable hide-details></v-text-field>
+                            </v-toolbar>
+                        </template>
+                        <template v-slot:default="{ items }">
+                            <v-container class="pa-2" fluid>
+                                <v-row dense>
+                                    <v-col v-for="item in items" :key="item.raw.title +':'+ item.raw.name" cols="auto"
+                                        class="flex-fill">
+                                        <v-card border flat>
+                                            <v-card-item :subtitle="item.raw.name" class="mb-2" :title="item.raw.title">
+                                                <template v-slot:append>
+                                                    <v-btn icon="mdi-lead-pencil" size="small" text="Read" border flat
+                                                        @click="promptStore.select(item.raw)">
+                                                    </v-btn>
+                                                </template>
+                                            </v-card-item>
+                                            <v-card-text>{{ item.raw.description }}</v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </template>
+                    </v-data-iterator>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="promptStore.promptSheet" class="dialog-card">
+                <v-card prepend-icon="mdi-account-cog-outline"
+                    :title="$t('$vuetify.dataIterator.p.sheet') + ' - ' + promptStore.promptSelect.title"
+                    :subtitle="promptStore.promptSelect.name">
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <div>{{promptStore.promptSelect.description}}</div>
+                        <div v-if="promptStore.promptSelect.arguments">
+                            <br>
+                            <v-textarea class="mx-2" v-for="argument in promptStore.promptSelect.arguments"
+                                color="primary" type="text" variant="outlined" v-model="argument.content"
+                                :label="argument.name" rows="1" auto-grow>
+                        </div>
+                        </v-textarea>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn class="pt-0" variant="flat" color="primary"
+                                @click="messageStore.applyPrompt(promptStore.fetchSelect())">Get</v-btn>
+                        </v-card-actions>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
             <v-dialog v-model="settingStore.agentDialog" class="dialog-card">
                 <v-card prepend-icon="mdi-history" title="Agent" style="overflow-x: auto">
                     <template v-slot:append>
@@ -650,7 +696,7 @@
 
                                 <!-- draggable cards -->
                                 <vuedraggable v-model="column.cards" v-bind="agentStore.getDragOption"
-                                    :class="{'list-group': !column.isAddVisible}" @change="column.callback"
+                                    :class="{'list-draggable': !column.isAddVisible}" @change="column.callback"
                                     item-key="id">
                                     <template #item="{ element, index }">
                                         <v-card @click="agentStore.editCard(element)" class="pa-4 mb-4">
@@ -672,7 +718,8 @@
                                 <v-divider></v-divider>
                                 <v-data-table-server hide-default-footer hide-default-header hide-no-data disable-sort
                                     v-if="mcpStore.getServers" :items="mcpStore.serverTools"
-                                    @update:options="mcpStore.loadTools" :loading="mcpStore.loading"></v-data-table-server>
+                                    @update:options="mcpStore.loadTools"
+                                    :loading="mcpStore.loading"></v-data-table-server>
                             </v-col>
                         </v-row>
 
@@ -843,12 +890,15 @@
     <template id="tuui-img-dialog-template">
         <v-dialog>
             <template v-slot:activator="{ props: activatorProps }">
-                <v-img class="history-images mb-3" position="left" min-width="100px" min-height="80px" width="50%"
-                    height="50%" max-width="30vw" max-height="30vh" v-bind="activatorProps" :src="src"></v-img>
+                <div>
+                    <v-img class="history-images mb-3" contain position="left" min-width="80px" min-height="80px"
+                        width="100%" height="100%" max-width="30vw" max-height="30vh" v-bind="activatorProps"
+                        :src="src"></v-img>
+                </div>
             </template>
             <template v-slot:default="{ isActive }">
-                <v-img @click="isActive.value = false" contain width="100%" height="100%" max-width="80vw"
-                    max-height="80vh" :src="src"></v-img>
+                <v-img @click="isActive.value = false" contain width="80vw" height="80vh" max-width="100%"
+                    max-height="100%" :src="src"></v-img>
             </template>
         </v-dialog>
     </template>
@@ -862,7 +912,6 @@
                         <div v-if="isHovering">
                             <v-divider></v-divider>
                             <v-card-actions>
-                                <v-spacer></v-spacer>
                                 <v-btn v-if="showCopy" color="primary" icon="mdi-content-copy" size="x-small"
                                     variant="plain" @click="copyToClipboard(messages[index])"></v-btn>
                                 <v-btn v-if="showModify" color="primary"
@@ -871,6 +920,9 @@
                                 <v-btn v-if="showContent" color="primary"
                                     :icon=" showcontent ? 'mdi-eye-remove' : 'mdi-eye'" size="x-small" variant="plain"
                                     @click="showcontent = !showcontent" v-bind="showcontent"></v-btn>
+                                <v-spacer></v-spacer>
+                                <v-btn v-if="showReduce && index > 0" color="error" icon="mdi-format-align-top"
+                                    size="x-small" variant="plain" @click="messages.splice(0, index)"></v-btn>
                                 <v-btn v-if="showDelete" color="error" icon="mdi-delete-off-outline" size="x-small"
                                     variant="plain" @click="messages.splice(index, range)"></v-btn>
                             </v-card-actions>
@@ -897,6 +949,7 @@
 
             getters: {
                 getServers: () => {
+                    console.log('MCP:', window.mcpServers)
                     return window.mcpServers
                 },
 
@@ -930,33 +983,45 @@
                     }
                     const mcpKeys = Object.keys(mcpServers)
                     const mcpTools = []
-                    await Promise.all(mcpKeys.map(async (key) => {
-                        const tools = await mcpServers[key].list();
-                        for (const tool of tools.tools) {
-                            mcpTools.push({
-                                type: 'function',
-                                function: {
-                                    name: tool.name,
-                                    description: tool.description,
-                                    parameters: tool.inputSchema,
-                                    // strict: true
+                    for (const key of mcpKeys) {
+                        const toolsListFunction = mcpServers[key]?.tools?.list;
+                        if (typeof toolsListFunction === 'function') {
+                            const tools = await toolsListFunction();
+                            console.log(await mcpServers[key]?.prompts?.list())
+                            // console.log(await mcpServers[key]?.resources?.list())
+                            if (tools && Array.isArray(tools.tools)) {
+                                for (const tool of tools.tools) {
+                                    mcpTools.push({
+                                        type: 'function',
+                                        function: {
+                                            name: tool.name,
+                                            description: tool.description,
+                                            parameters: tool.inputSchema,
+                                            // strict: true
+                                        }
+                                    });
                                 }
-                            })
+                            }
                         }
-                    }));
+                    }
                     return mcpTools
                 },
                 getTool: async function (tool_name) {
-                    const mcpServers = this.getServers
-                    const mcpKeys = Object.keys(mcpServers)
+                    const mcpServers = this.getServers;
+                    const mcpKeys = Object.keys(mcpServers);
                     const result = await Promise.any(mcpKeys.map(async (key) => {
-                        const tools = await mcpServers[key].list();
-                        const foundTool = tools.tools.find(tool => tool.name === tool_name);
-                        if (foundTool) {
-                            return {
-                                server: key,
-                                tool: foundTool
-                            };
+                        const toolsListFunction = mcpServers[key]?.tools?.list;
+                        if (typeof toolsListFunction === 'function') {
+                            const tools = await toolsListFunction();
+                            if (tools && Array.isArray(tools.tools)) {
+                                const foundTool = tools.tools.find(tool => tool.name === tool_name);
+                                if (foundTool) {
+                                    return {
+                                        server: key,
+                                        tool: foundTool
+                                    };
+                                }
+                            }
                         }
                         throw new Error(`Tool ${tool_name} not found on server ${key}`);
                     }));
@@ -982,8 +1047,19 @@
                         arguments: tool_arguments
                     }
 
-                    const result = await this.getServers[tool.server].call(params)
+                    const result = await this.getServers[tool.server].tools.call(params)
                     return result
+                },
+                convertItem: function (item) {
+                    if (item.type === "text") {
+                        return item;
+                    } else if (item.type === "image") {
+                        const imageUrl = `data:${item.mimeType};base64,${item.data}`;
+                        return {
+                            type: 'image_url',
+                            image_url: { url: imageUrl }
+                        };
+                    }
                 },
                 packReturn: (string) => {
                     return {
@@ -1167,6 +1243,92 @@
             },
         });
 
+        const usePromptStore = defineStore({
+            id: "promptStore",
+            state: () => ({
+                promptDialog: false,
+                promptSheet: false,
+                promptList: [],
+                promptSelect: {},
+                search: '',
+                loading: false,
+            }),
+            actions: {
+                loadPrompts: function () {
+                    this.loading = true
+                    try {
+                        this.fetchPrompts().then((prompts) => {
+                            console.log(prompts)
+                            this.promptList = prompts
+                            return
+                        })
+                    } catch (error) {
+                        console.error('Failed to load prompts:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+
+                },
+                fetchPrompts: async function () {
+                    const mcpStore = useMcpStore();
+                    const mcpServers = mcpStore.getServers
+                    if (!mcpServers) {
+                        return []
+                    }
+                    const mcpKeys = Object.keys(mcpServers)
+                    const allPrompts = []
+                    for (const key of mcpKeys) {
+                        const obj = await mcpServers[key]?.prompts?.list();
+                        obj.prompts.forEach(prompt => allPrompts.push({ title: key, ...prompt }));
+                    }
+
+                    return allPrompts;
+                },
+                select: function (prompt) {
+                    console.log(prompt.title, prompt.name, prompt.arguments)
+                    this.promptSelect = prompt
+                    this.promptSheet = true
+                    this.promptDialog = false
+                },
+                fetchSelect: async function () {
+                    const mcpStore = useMcpStore();
+                    const mcpServers = mcpStore.getServers
+                    const getFun = mcpServers[this.promptSelect.title]?.prompts?.get
+                    if (!getFun) {
+                        return []
+                    }
+                    const params = { name: this.promptSelect.name }
+                    if (this.promptSelect.arguments) {
+                        for (const argument of this.promptSelect.arguments) {
+                            if (argument.name) {
+                                if (!params['arguments']) {
+                                    params['arguments'] = {};
+                                }
+                                params['arguments'][argument.name] = argument.content
+                            }
+                        }
+                    }
+
+                    console.log(params)
+                    const prompts = await getFun(params)
+
+                    const conversations = prompts.messages.map(item => {
+                        const content = mcpStore.convertItem(item.content)
+                        const conversation = {
+                            role: item.role,
+                            content: item.role == 'user' ? [content] : content.text
+                        }
+                        return conversation
+                    });
+
+                    this.promptSheet = false
+
+                    return conversations
+                },
+            },
+        });
+
+
 
         const useSnackbarStore = defineStore({
             id: "snackbarStore",
@@ -1222,6 +1384,7 @@
                 messages: { type: Object, required: true },
                 showContent: { type: Boolean, default: false },
                 showDelete: { type: Boolean, default: true },
+                showReduce: { type: Boolean, default: true },
                 showModify: { type: Boolean, default: false },
                 showCopy: { type: Boolean, default: true },
             },
@@ -1325,6 +1488,7 @@
                 const mcpStore = useMcpStore();
                 const agentStore = useAgentStore();
                 const settingStore = useSettingStore();
+                const promptStore = usePromptStore();
 
                 const { locale } = useI18n({ useScope: 'global' });
 
@@ -1442,6 +1606,12 @@
                                 this.startInference();
                             }
                         },
+                        applyPrompt: async function (fetchedPrompt) {
+                            const messages = await fetchedPrompt
+                            console.log(messages)
+                            this.conversation = messages
+
+                        },
                         startInference: async function () {
                             this.clear();
                             await createCompletion(this.conversation);
@@ -1475,10 +1645,8 @@
                                         console.log(result)
 
                                         if (result.content) {
-                                            this.conversation.push({
-                                                role: "tool",
-                                                content: result.content,
-                                                tool_call_id: tool_call.id
+                                            this.contentConvert(result.content, tool_call.id).forEach(item => {
+                                                this.conversation.push(item);
                                             });
                                             tool_called = true;
                                         }
@@ -1500,6 +1668,26 @@
                                 if (tool_called) {
                                     this.startInference()
                                 }
+                            }
+                        },
+                        contentConvert: function (content, toolCallId) {
+                            const msg = content.map(item => mcpStore.convertItem(item));
+                            if (msg.find(item => item.type === 'image_url')) {
+                                return [{
+                                    role: "tool",
+                                    content: mcpStore.packReturn('Image provided in next user message').content,
+                                    tool_call_id: toolCallId
+                                }, {
+                                    role: "user",
+                                    content: msg,
+                                },
+                                ]
+                            } else {
+                                return [{
+                                    role: "tool",
+                                    content: msg,
+                                    tool_call_id: toolCallId
+                                }]
                             }
                         }
                     }
@@ -1666,16 +1854,17 @@
 
                 const createCompletion = async (rawconversation) => {
 
-                    const conversation = rawconversation.reduce((newConversation, item) => {
-                        if (item.role === "user" && item.content[0].type === "image_url") {
-                            // Image is too large, only latest query could be kept
-                            newConversation = [item];
-                        }
-                        else {
-                            newConversation.push(item);
-                        }
-                        return newConversation;
-                    }, []);
+                    // const conversation = rawconversation.reduce((newConversation, item) => {
+                    //     if (item.role === "user" && item.content[0].type === "image_url") {
+                    //         // Image is too large, only latest query could be kept
+                    //         newConversation = [item];
+                    //     }
+                    //     else {
+                    //         newConversation.push(item);
+                    //     }
+                    //     return newConversation;
+                    // }, []);
+                    const conversation = rawconversation
                     try {
                         messageStore.generating = true
                         // Create a completion (axios is not used here because it does not support streaming)
@@ -1717,6 +1906,8 @@
                             chatbotStore.url + chatbotStore.path,
                             request
                         );
+
+                        console.log(completion)
 
                         // Handle errors
                         if (!completion.ok) {
@@ -1991,7 +2182,7 @@
 
                 const resizeAvatar = () => {
                     // console.log(window.innerWidth)
-                    if (window.innerWidth <= 1310) {
+                    if (window.innerWidth <= 1279) {
                         settingStore.avatarSize = 26
                     } else {
                         settingStore.avatarSize = 36
@@ -2061,6 +2252,7 @@
                     configFile,
 
                     settingStore,
+                    promptStore,
                     agentStore,
                     snackbarStore,
                     mcpStore,
@@ -2086,6 +2278,10 @@
                     dataIterator: {
                         title: 'AI Query Layout',
                         q: { title: 'Query History' },
+                        p: {
+                            title: 'Prompts Template',
+                            sheet: 'Prompts Sheet'
+                        },
                         i: {
                             title: 'Interface Configuration',
                             apikey: 'API Key',
