@@ -280,6 +280,7 @@
                 <div id="lottie" class="text-center text-h5">
                     <a href="https://github.com/AI-QL/chat-ui" style="color: #1867C0"
                         class="font-weight-bold text-decoration-none" target="_blank">
+                        <v-icon class="mb-2">mdi-github</v-icon>
                         {{$t('$vuetify.dataIterator.title')}}</a>
                 </div>
             </v-container>
@@ -295,8 +296,8 @@
                             <v-fab v-bind="activatorProps" size="small" icon="mdi-cog" absolute
                                 class="input-icon"></v-fab>
                         </template>
-                        <v-btn key="4" variant="elevated" icon @click="settingStore.initDialog">
-                            <v-icon>mdi-api</v-icon>
+                        <v-btn key="4" variant="elevated" @click="settingStore.initDialog" icon="mdi-api"
+                            v-tooltip:end="$t('$vuetify.dataIterator.i.title')">
                         </v-btn>
                         <v-badge key="3" color="transparent" location='top left'>
                             <template v-slot:badge>
@@ -304,8 +305,8 @@
                             </template>
                             <v-menu transition="fade-transition">
                                 <template v-slot:activator="{ props }">
-                                    <v-btn variant="elevated" icon v-bind="props">
-                                        <v-icon>mdi-translate</v-icon>
+                                    <v-btn variant="elevated" v-bind="props" icon="mdi-translate"
+                                        v-tooltip:end="$t('$vuetify.dataIterator.l.title')">
                                     </v-btn>
                                 </template>
                                 <v-list class='mb-2'>
@@ -320,10 +321,13 @@
                                 </v-list>
                             </v-menu>
                         </v-badge>
-                        <v-badge key="2" :content="historyStore.conversation.length" color="info" max="99"
+                        <v-btn @click="settingStore.agentDialog = true" variant="elevated" icon="mdi-account-supervisor"
+                            v-tooltip:end="$t('$vuetify.dataIterator.a.title')">
+                        </v-btn>
+                        <v-badge key="1" :content="historyStore.conversation.length" color="info" max="99"
                             location='top left'>
-                            <v-btn variant="elevated" icon @click="settingStore.configHistory = true">
-                                <v-icon>mdi-list-box</v-icon>
+                            <v-btn variant="elevated" icon="mdi-list-box" @click="settingStore.configHistory = true"
+                                v-tooltip:end="$t('$vuetify.dataIterator.q.title')">
                             </v-btn>
                         </v-badge>
                     </v-speed-dial>
@@ -360,17 +364,17 @@
                                     color="primary"></v-btn>
                             </template>
                             <v-btn key="2" size="small" color="primary" variant="elevated"
-                                @click="messageStore.resendMessage" icon="mdi-autorenew"></v-btn>
+                                @click="messageStore.resendMessage" icon="mdi-autorenew"
+                                v-tooltip:start="$t('$vuetify.dataIterator.g.reg')">
                             </v-btn>
-                            <v-btn key="1" color="primary" variant="elevated" icon @click="messageStore.init()">
-                                <v-icon>mdi-pencil-plus</v-icon>
+                            <v-btn key="1" color="primary" variant="elevated" @click="messageStore.init()"
+                                icon="mdi-pencil-plus" v-tooltip:start="$t('$vuetify.dataIterator.g.new')">
                             </v-btn>
                         </v-speed-dial>
                         <v-btn v-else size="small" :color="mcpStore.getServers ? 'primary': 'grey'" variant="elevated"
                             @click="mcpStore.getServers ? promptStore.promptDialog = true : false"
                             icon="mdi-account-edit">
                         </v-btn>
-
                     </div>
                 </v-sheet>
             </div>
@@ -658,7 +662,8 @@
                 </v-card>
             </v-dialog>
             <v-dialog v-model="settingStore.agentDialog" class="dialog-card">
-                <v-card prepend-icon="mdi-history" title="Agent" style="overflow-x: auto">
+                <v-card prepend-icon="mdi-history" :title="$t('$vuetify.dataIterator.a.title')"
+                    style="overflow-x: auto">
                     <template v-slot:append>
                         <v-card-actions>
                             <v-spacer></v-spacer>
@@ -764,10 +769,6 @@
                 <v-icon class="rotation text-white">mdi-tools</v-icon>
             </div>
             <v-card v-else elevation="10" class="d-flex flex-column toolbox">
-                <v-btn @click="settingStore.agentDialog = true" variant="text" size="45">
-                    <v-icon size="25" color="primary">mdi-clock-outline</v-icon>
-                    <v-tooltip activator="parent" location="left" text="Agent Dialog"></v-tooltip>
-                </v-btn>
                 <!-- ---------------------------------------------- -->
                 <!-- Reset -->
                 <!-- ---------------------------------------------- -->
@@ -2280,7 +2281,15 @@
                         q: { title: 'Query History' },
                         p: {
                             title: 'Prompts Template',
-                            sheet: 'Prompts Sheet'
+                            sheet: 'Prompts Sheet',
+                            inuse: 'In Use',
+                            standby: 'Standby'
+                        },
+                        l: { title: 'Language' },
+                        a: { title: 'Agent' },
+                        g: {
+                            new: 'New Conversation',
+                            reg: 'Regeneration'
                         },
                         i: {
                             title: 'Interface Configuration',
@@ -2317,6 +2326,7 @@
                     dataIterator: {
                         title: 'Layout della Query AI',
                         q: { title: 'Cronologia delle Query' },
+                        l: { title: 'Lingua' },
                         i: {
                             title: 'Configurazione dell\'interfaccia',
                             apikey: 'Chiave API',
@@ -2351,6 +2361,7 @@
                     dataIterator: {
                         title: 'AI お問い合わせ',
                         q: { title: '歴史' },
+                        l: { title: '言語設定' },
                         i: {
                             title: 'インターフェイス構成',
                             apikey: 'API キー',
@@ -2376,6 +2387,7 @@
                     dataIterator: {
                         title: 'Layout för AI-frågor',
                         q: { title: 'Frågehistorik' },
+                        l: { title: 'Språkinställning' },
                         i: {
                             title: 'Konfiguration av gränssnitt',
                             apikey: 'API Nyckel',
@@ -2403,6 +2415,16 @@
                     dataIterator: {
                         title: 'AI 问询界面',
                         q: { title: '历史记录' },
+                        l: { title: '语言设置' },
+                        p: {
+                            title: 'MCP提示词模板',
+                            sheet: 'MCP提示词表单'
+                        },
+                        a: { title: '智能体' },
+                        g: {
+                            new: '新对话',
+                            reg: '重新生成'
+                        },
                         i: {
                             title: '接口配置',
                             apikey: 'API 密钥',
