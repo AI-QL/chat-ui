@@ -1773,7 +1773,6 @@
                             "http://127.0.0.1",
                             "https://api.deepinfra.com",
                             "https://api.deepseek.com",
-                            "https://api2.aiql.com",
                             "https://api.aiql.com"],
                         path: [
                             "/chat/completions",
@@ -1782,13 +1781,6 @@
                             "/openai/v1/chat/completions"],
                         model: [
                             "meta-llama/Llama-3.3-70B-Instruct",
-                            "Qwen/Qwen2.5-72B-Instruct",
-                            "meta-llama/Llama-3.2-11B-Vision-Instruct",
-                            "meta-llama/Llama-3.2-90B-Vision-Instruct",
-                            "meta-llama/Meta-Llama-3.1-8B-Instruct",
-                            "meta-llama/Meta-Llama-3.1-70B-Instruct",
-                            "mistralai/Mistral-7B-Instruct-v0.3",
-                            "mistralai/Mistral-Nemo-Instruct-2407",
                         ],
                         authPrefix: ["Bearer", "Base", "Token"],
                         max_tokens_type: ["max_tokens", "max_completion_tokens", "max_new_tokens"],
@@ -1814,13 +1806,13 @@
                     id: "chatbotStore",
                     state: () => ({
                         apiKey: "",
-                        url: "https://api2.aiql.com",
-                        path: "/chat/completions",
+                        url: "https://ai.aiql.com",
+                        path: "/v1/chat/completions",
                         model: "meta-llama/Llama-3.3-70B-Instruct",
                         authPrefix: "Bearer",
                         contentType: "application/json",
                         max_tokens_type: "max_tokens",
-                        max_tokens_value: "32000",
+                        max_tokens_value: "",
                         temperature: "",
                         top_p: "",
                         method: "POST",
@@ -1904,7 +1896,7 @@
                         };
 
                         const completion = await fetch(
-                            chatbotStore.url + chatbotStore.path,
+                            chatbotStore.url + (chatbotStore.path ? chatbotStore.path : ''),
                             request
                         );
 
@@ -2030,9 +2022,9 @@
                             return parseChoice(content, target)
                         })
                     } else if ('response' in parsed) {
-                        return parsed.response
+                        return parseChoice(parsed.response, target)
                     } else {
-                        return parsed
+                        return parseChoice(parsed, target)
                     }
                 };
 
