@@ -9,7 +9,8 @@
     "defaultChoiceStore": {
         "model": [
             "deepseek-chat",
-            "deepseek-coder"
+            "deepseek-coder",
+            "deepseek-reasoner"
         ]
     }
 }
