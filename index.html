@@ -334,10 +334,10 @@
             </v-container>
             <div class="input-area">
                 <v-sheet elevation="0" class="input-panel d-flex align-end px-1">
-                    <v-speed-dial location="bottom right" transition="expand-transition" offset="50">
+                    <v-speed-dial transition="expand-transition" offset="10">
                         <template v-slot:activator="{ props: activatorProps }">
-                            <v-fab v-bind="activatorProps" size="small" icon="mdi-cog" absolute
-                                class="input-icon"></v-fab>
+                            <v-btn v-bind="activatorProps" size="small" icon="mdi-cog" absolute
+                                class="input-icon"></v-btn>
                         </template>
                         <v-btn key="4" variant="elevated" @click="settingStore.initDialog" icon="mdi-api"
                             v-tooltip:end="$t('$vuetify.dataIterator.i.title')">
@@ -920,6 +920,11 @@
                         </v-avatar>
                         <tuui-chat-card :index="group.index" :messages="messages" :show-content="true">
                             <template v-slot:default="{ showcontent }">
+                                <v-card-text v-if="group.message.reasoning_content" class="md-preview pt-1">
+                                    <v-textarea class="conversation-area text-disabled font-italic" variant="plain"
+                                        density='compact' auto-grow hide-details rows="1" readonly
+                                        v-model="group.message.reasoning_content"></v-textarea>
+                                </v-card-text>
                                 <v-card-text v-if="showcontent" class="md-preview pt-1">
                                     <v-textarea class="conversation-area" variant="plain" density='compact' auto-grow
                                         hide-details rows="1" readonly v-model="group.message.content"></v-textarea>
@@ -965,6 +970,9 @@
                                             </v-card-text>
                                         </v-card>
                                         <v-card class="mt-1" variant="flat" v-if="item.role == 'assistant'">
+                                            <v-card-text v-if="item.reasoning_content" class="font-weight-bold">
+                                                {{ item.reasoning_content }}
+                                            </v-card-text>
                                             <v-card-text v-if="item.content" class="font-weight-bold">
                                                 {{ item.content }}
                                             </v-card-text>
@@ -2013,18 +2021,21 @@
                 const languageStore = useLanguageStore();
 
                 const createCompletion = async (rawconversation) => {
-
-                    // const conversation = rawconversation.reduce((newConversation, item) => {
-                    //     if (item.role === "user" && item.content[0].type === "image_url") {
-                    //         // Image is too large, only latest query could be kept
-                    //         newConversation = [item];
-                    //     }
-                    //     else {
-                    //         newConversation.push(item);
-                    //     }
-                    //     return newConversation;
-                    // }, []);
-                    const conversation = rawconversation
+                    const conversation = rawconversation.reduce((newConversation, item) => {
+                        if (item.role === "assistant") {
+                            const { reasoning_content, ...rest } = item;
+                            newConversation.push(rest);
+                        }
+                        // (item.role === "user" && item.content[0].type === "image_url") {
+                        //     // Image is too large, only latest query could be kept
+                        //     newConversation = [item];
+                        // }
+                        else {
+                            newConversation.push(item);
+                        }
+                        return newConversation;
+                    }, []);
+                    // const conversation = rawconversation
                     try {
                         messageStore.generating = true
                         // Create a completion (axios is not used here because it does not support streaming)
@@ -2091,6 +2102,7 @@
                         // Add the bot message
                         messageStore.conversation.push({
                             content: "",
+                            reasoning_content: "",
                             tool_calls: [],
                             role: "assistant",
                         });
@@ -2098,7 +2110,7 @@
                         let buffer = ''
 
                         // Read the stream
-                        await read(reader, messageStore.conversation[messageStore.conversation.length - 1], buffer, chatbotStore.stream);
+                        await read(reader, messageStore.conversation.at(-1), buffer, chatbotStore.stream);
                     } catch (error) {
                         snackbarStore.showErrorMessage(error.message);
                     } finally {
@@ -2202,6 +2214,8 @@
                                 target.content += choice
                             } else if (typeof choice.content === 'string') {
                                 target.content += choice.content
+                            } else if (typeof choice.reasoning_content === 'string') {
+                                target.reasoning_content += choice.reasoning_content
                             }
                             parseTool(choice.tool_calls, target)
                         }
@@ -2229,7 +2243,7 @@
                     }
                 };
 
-                watch(computed(() => messageStore.conversation[messageStore.conversation.length - 1]?.content),
+                watch(computed(() => messageStore.conversation.at(-1)?.content),
                     (newValue, oldValue) => {
                         if (newValue !== oldValue) {
                             asyncScrollToBottom();
