@@ -168,7 +168,11 @@
 
             .input-box textarea {
                 margin-bottom: 1px;
-                overflow-y: hidden
+            }
+
+            .input-box textarea::-webkit-scrollbar {
+                display: none;
+
             }
 
             .input-icon {
@@ -1724,22 +1728,8 @@
                             this.images = [];
                         },
                         handleKeydown(e) {
-                            if (e.key === "Enter" && (e.altKey || e.shiftKey || e.ctrlKey)) {
-                                // Alt/Shift + Enter, insert a \n
-                                e.preventDefault();
-                                const textarea = e.target;
-                                // Get the current cursor position
-                                const start = textarea.selectionEnd;
-
-                                // Insert '\n' at the current cursor position
-                                const textBefore = this.userMessage.substring(0, start);
-                                const textAfter = this.userMessage.substring(start);
-                                this.userMessage = textBefore + '\n' + textAfter;
-                                setTimeout(() => {
-                                    // Set the cursor position after the inserted '\n'
-                                    textarea.selectionStart = start + 1; // Move the cursor to the position after the newline
-                                    textarea.selectionEnd = start + 1;
-                                }, 0);
+                            if (e.key === "Enter" && e.shiftKey) {
+                                //  A new line by default
                             } else if (e.key === "Enter") {
                                 // Only Enter is pressed, send message
                                 e.preventDefault();
