@@ -92,7 +92,7 @@
 
     <!-- Pinia -->
     <script src="https://cdn.jsdelivr.org/npm/vue-demi/lib/index.iife.min.js"></script>
-    <script src="https://cdn.jsdelivr.org/npm/pinia@2.3.1/dist/pinia.iife.prod.js"></script>
+    <script src="https://cdn.jsdelivr.org/npm/pinia/dist/pinia.iife.prod.js"></script>
     <script src="https://cdn.jsdelivr.org/npm/pinia-plugin-persist/dist/pinia-persist.umd.min.js"></script>
 
     <!-- MD -->
@@ -934,8 +934,8 @@
                                     <v-textarea class="conversation-area" variant="plain" density='compact' auto-grow
                                         hide-details rows="1" readonly v-model="group.message.content"></v-textarea>
                                 </v-card-text>
-                                <v-card-text v-else class="md-preview">
-                                    <md-preview :model-value="group.message.content" class="mx-2 my-n2"
+                                <v-card-text v-else class="md-preview px-5 py-2">
+                                    <md-preview :model-value="group.message.content" 
                                     :language="language == 'zhHans' ? 'zh-CN' : 'en-US'" :code-foldable="true"
                                     auto-fold-threshold="Infinity"></md-preview>
                                 </v-card-text>
