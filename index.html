@@ -110,7 +110,8 @@
 
     <script>
         window.onload = function () {
-            document.getElementById('lottie').style.display = 'block';
+            const lottie = document.getElementById('lottie');
+            if (lottie) lottie.style.display = 'block';
             document.getElementById('loading').style.display = 'none';
         };
     </script>
@@ -933,9 +934,11 @@
                                     <v-textarea class="conversation-area" variant="plain" density='compact' auto-grow
                                         hide-details rows="1" readonly v-model="group.message.content"></v-textarea>
                                 </v-card-text>
-                                <md-preview v-else :model-value="group.message.content" class="md-preview"
+                                <v-card-text v-else class="md-preview">
+                                    <md-preview :model-value="group.message.content" class="mx-2 my-n2"
                                     :language="language == 'zhHans' ? 'zh-CN' : 'en-US'" :code-foldable="true"
                                     auto-fold-threshold="Infinity"></md-preview>
+                                </v-card-text>
                             </template>
                         </tuui-chat-card>
                     </div>
@@ -1054,8 +1057,7 @@
         const { createI18n, useI18n } = VueI18n
         const { en, it, ja, sv, zhHans } = 'vuetify/locale'
 
-        const useMcpStore = defineStore({
-            id: "mcpStore",
+        const useMcpStore = defineStore("mcpStore", {
             state: () => ({
                 serverTools: [],
                 loading: true,
@@ -1202,8 +1204,7 @@
             },
         });
 
-        const useAgentStore = defineStore({
-            id: "agentStore",
+        const useAgentStore = defineStore("agentStore", {
             state: () => ({
                 card: null,
                 columns: [],
@@ -1344,8 +1345,7 @@
 
         });
 
-        const useSettingStore = defineStore({
-            id: "settingStore",
+        const useSettingStore = defineStore("settingStore", {
             state: () => ({
                 inputRow: 1,
                 avatarSize: 24,
@@ -1373,8 +1373,7 @@
             },
         });
 
-        const useResourceStore = defineStore({
-            id: "resourceStore",
+        const useResourceStore = defineStore("resourceStore", {
             state: () => ({
                 resourceDialog: false,
                 tab: null,
@@ -1419,8 +1418,7 @@
             },
         });
 
-        const usePromptStore = defineStore({
-            id: "promptStore",
+        const usePromptStore = defineStore("promptStore", {
             state: () => ({
                 promptDialog: false,
                 promptSheet: false,
@@ -1508,8 +1506,7 @@
 
 
 
-        const useSnackbarStore = defineStore({
-            id: "snackbarStore",
+        const useSnackbarStore = defineStore("snackbarStore", {
             state: () => ({
                 isShow: false,
                 message: "",
@@ -1671,8 +1668,7 @@
 
                 const { locale } = useI18n({ useScope: 'global' });
 
-                const useLanguageStore = defineStore({
-                    id: "languageStore",
+                const useLanguageStore = defineStore("languageStore", {
                     state: () => ({
                         list: [{ title: 'English', value: 'en', name: 'united-states' },
                         { title: 'Italiano', value: 'it', name: 'italy' },
@@ -1701,8 +1697,7 @@
                     },
                 });
 
-                const useMessageStore = defineStore({
-                    id: "messageStore",
+                const useMessageStore = defineStore("messageStore", {
                     state: () => ({
                         userMessage: "",
                         conversation: [],
@@ -1859,8 +1854,7 @@
                     }
                 });
 
-                const useHistoryStore = defineStore({
-                    id: "historyStore",
+                const useHistoryStore = defineStore("historyStore", {
                     state: () => ({
                         conversation: [],
                     }),
@@ -1930,8 +1924,7 @@
                 });
 
 
-                const useDefaultChoiceStore = defineStore({
-                    id: "defaultChoiceStore",
+                const useDefaultChoiceStore = defineStore("defaultChoiceStore", {
                     state: () => ({
                         url: [
                             "https://api.openai.com",
@@ -1967,8 +1960,7 @@
                 });
 
 
-                const useChatbotStore = defineStore({
-                    id: "chatbotStore",
+                const useChatbotStore = defineStore("chatbotStore", {
                     state: () => ({
                         apiKey: "",
                         url: "https://ai.aiql.com",
@@ -2219,6 +2211,10 @@
                             if (lastTool && (!tool.id || lastTool.id == tool.id)) {
                                 const source = tool.function
                                 for (const key in source) {
+                                    // Determine if source[key] is null, skip if it is null
+                                    if (source[key] === null) {
+                                        continue;
+                                    }
                                     if (lastTool.function[key]) {
                                         lastTool.function[key] += source[key];
                                     } else {
