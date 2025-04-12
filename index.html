@@ -934,7 +934,7 @@
                                     <v-textarea class="conversation-area" variant="plain" density='compact' auto-grow
                                         hide-details rows="1" readonly v-model="group.message.content"></v-textarea>
                                 </v-card-text>
-                                <v-card-text v-else class="md-preview px-5 py-2">
+                                <v-card-text v-else class="md-preview px-4 py-3">
                                     <md-preview :model-value="group.message.content" 
                                     :language="language == 'zhHans' ? 'zh-CN' : 'en-US'" :code-foldable="true"
                                     auto-fold-threshold="Infinity"></md-preview>
@@ -1783,6 +1783,10 @@
                                 return
                             }
                             if (last.tool_calls.length == 0) {
+                                delete last.tool_calls
+                                return
+                            } 
+                            if (Object.keys(last.tool_calls[0]).length === 0) {
                                 delete last.tool_calls
                                 return
                             } else {
